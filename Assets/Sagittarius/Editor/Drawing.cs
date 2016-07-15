@@ -6,7 +6,7 @@ namespace Griphone.Sagittarius
 {
     public class Drawing
     {
-        public static Texture2D aaLineTex = null;
+        public static Texture2D aaLineTex = null;//アンチエイリアステクスチャ
         public static Texture2D lineTex = null;
 
         public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width, bool antiAlias)

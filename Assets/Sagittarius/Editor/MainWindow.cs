@@ -65,11 +65,6 @@ namespace Griphone.Sagittarius
             DrawSelectedItemInfo();
             DrawTextureArea();
 
-//            ConstrainX = EditorGUILayout.FloatField("ConstrainX", ConstrainX);
-//            ConstrainY = EditorGUILayout.FloatField("ConstrainY", ConstrainY);
-//            ConstrainW = EditorGUILayout.FloatField("ConstrainW", ConstrainW);
-//            ConstrainH = EditorGUILayout.FloatField("ConstrainH", ConstrainH);
-
             EditorGUILayout.BeginVertical(GUI.skin.box);
             DrawDataLinkArea();
             DrawDataNodes();
@@ -231,17 +226,18 @@ namespace Griphone.Sagittarius
 
             if (scene.rectData == null) scene.rectData = new List<RectData>();
             if (scene.dataIndex == null) scene.dataIndex = new List<int>();
-            if (scene.rectData.Count < elementId)
-            {
-                scene.rectData.Add(new RectData());
-            }
-            if (scene.dataIndex.Count < elementId)
-            {
-                scene.dataIndex.Add(-1);
-            }
 
             if (scene.dataIndex[elementId] < 0)
             {
+                if (scene.rectData.Count < elementId)
+                {
+                    scene.rectData.Add(new RectData());
+                }
+                if (scene.dataIndex.Count < elementId)
+                {
+                    scene.dataIndex.Add(-1);
+                }
+
                 // 未指定の場合、新しいデータを作成し、そのデータを参照する.
                 scene.rectData.Add(new RectData());
                 scene.dataIndex[elementId] = scene.rectData.Count - 1;
@@ -274,7 +270,6 @@ namespace Griphone.Sagittarius
             {
                 if (windowList.Count <= i)
                 {
-                    Debug.Log("Add Window");
                     windowList.Add(new DataNodeWindow()
                     {
                         rect = new Rect(200, NodeStartY + 60 * i, 280, 50),
@@ -322,7 +317,10 @@ namespace Griphone.Sagittarius
 
             {
                 var enable = GUI.enabled;
-                GUI.enabled = windowList[id].selectedDataIndex >= 0 && e;
+                if (windowList.Count > id)
+                {
+                    GUI.enabled = windowList[id].selectedDataIndex >= 0 && !Current.isLock;
+                }
                 if (GUILayout.Button("同期"))
                 {
                     OnClickSyncButton(id);
@@ -335,9 +333,13 @@ namespace Griphone.Sagittarius
             {
                 popupList.Add(i.ToString());
             }
-            windowList[id].selectedDataIndex = EditorGUILayout.Popup(
-                windowList[id].selectedDataIndex,
-                popupList.ToArray());
+
+            if (windowList.Count > id)
+            {
+                windowList[id].selectedDataIndex = EditorGUILayout.Popup(
+                    windowList[id].selectedDataIndex,
+                    popupList.ToArray());
+            }
 
             EditorGUILayout.EndHorizontal();
             GUI.DragWindow();
@@ -348,7 +350,8 @@ namespace Griphone.Sagittarius
         // 編集ボタンを押した時の挙動.
         private void OnClickEditButton()
         {
-            // TODO
+            EditWindow.Instance.Current = Current;
+            EditWindow.Instance.SelectedSceneIndex = selectedSceneIndex;
         }
 
         // プレビューボタンを押した時の挙動.
@@ -381,16 +384,26 @@ namespace Griphone.Sagittarius
             var scene = Current.sceneList[selectedSceneIndex];
             var syncTargetRectIndex = windowList[windowId].selectedDataIndex - 1;
 
-            for (int i = 0; i < scene.dataIndex.Count; ++i)
-            {
-                if (scene.dataIndex[i] == syncTargetRectIndex)
-                {
-                    Debug.Log("Sync from " + scene.dataIndex[i] + " to " + windowId);
-                    scene.dataIndex[i] = windowId;
-                }
-            }
+            var result = EditorUtility.DisplayDialog(
+                "確認",
+                string.Format("データ {0} を データ {1} に同期します。\nよろしいですか？", windowId, syncTargetRectIndex),
+                "OK", "Cancel");
 
-            scene.Clean();
+            if (result)
+            {
+                for (int i = 0; i < scene.dataIndex.Count; ++i)
+                {
+                    if (scene.dataIndex[i] == windowId)
+                    {
+                        scene.dataIndex[i] = syncTargetRectIndex;
+                    }
+                }
+                scene.Clean();
+            }
+            foreach (var nodeWindow in windowList)
+            {
+                nodeWindow.selectedDataIndex = -1;
+            }
         }
     }
 }

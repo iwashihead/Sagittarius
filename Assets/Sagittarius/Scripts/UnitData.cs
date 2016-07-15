@@ -1,5 +1,4 @@
 ﻿using System;
-using UnityEngine;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
@@ -94,7 +93,8 @@ namespace Griphone.Sagittarius
                 if (id != null && setting != null && Regex.IsMatch(id, setting.IdRuleRegex) == false)
                 {
                     return ErrMsg("ID名がプロジェクトルールと異なります.\n" +
-                                  "[設定] -> [IDの命名規則]を確認してください\n{0} Regex:{1}", id, setting.IdRuleRegex);
+                                  "[設定] -> [IDの命名規則]を確認してください\n{0} Regex:{1}",
+                                  id, setting.IdRuleRegex);
                 }
             }
 

@@ -153,7 +153,6 @@ namespace Griphone.Sagittarius
             EditorGUILayout.BeginVertical(GUI.skin.box);
             if (GUILayout.Button("保存"))
             {
-                dataList.SetDirty();
                 AssetDatabase.SaveAssets();
             }
             EditorGUILayout.EndVertical();

@@ -34,5 +34,12 @@ namespace Griphone.Sagittarius
             if (onDraw != null) onDraw();
             EditorGUILayout.EndVertical();
         }
+
+        public static Rect ConstrainRect(Rect window, Rect constraintsSize, EditorWindow editorWindow)
+        {
+            window.x = Mathf.Clamp(window.x, editorWindow.position.x - constraintsSize.x, constraintsSize.width - window.width);
+            window.y = Mathf.Clamp(window.y, editorWindow.position.y - constraintsSize.y, constraintsSize.height - window.height);
+            return window;
+        }
     }
 }

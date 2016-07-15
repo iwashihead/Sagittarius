@@ -23,17 +23,17 @@ namespace Griphone.Sagittarius
                 return new Rect(
                     Instance.position.x - ConstrainX,
                     Instance.position.y - ConstrainY,
-                    Instance.position.width - ConstrainW,
-                    Instance.position.height - ConstrainH);
+                    Instance.position.width - ConstrainWidth,
+                    Instance.position.height - ConstrainHeight);
             }
         }
 
         private const float ConstrainX = 120;
         private const float ConstrainY = 180;
-        private const float ConstrainW = 20;
-        private const float ConstrainH = 20;
+        private const float ConstrainWidth = 20;
+        private const float ConstrainHeight = 20;
         private const float NodeStartY = 200;
-        private const float ElementStartY = 256 - 75;
+        private const float ElementStartY = 181;
         private const float ElementHeight = 41.31f;
 
         private class NodeWindow
@@ -289,7 +289,7 @@ namespace Griphone.Sagittarius
                 if (scene.dataIndex[i] < 0) continue;
                 var elementRect = new Rect(0, ElementStartY + ElementHeight * i, 100, 50);
                 var window = windowList[scene.dataIndex[i]];
-                CurveFronTo(elementRect, window.rect, setting.ElementList[i].color, new Color(0.2f, 0.2f, 0.2f, 1f));
+                Drawing.CurveFronTo(elementRect, window.rect, setting.ElementList[i].color, new Color(0.2f, 0.2f, 0.2f, 1f));
             }
 
             // Nodeウインドウの表示.
@@ -299,7 +299,7 @@ namespace Griphone.Sagittarius
                 // Windowの描画.
                 windowList[i].rect = GUI.Window(i, windowList[i].rect, DrawNodeWindow, "領域データ " + i);
                 // Windowの移動位置制限.
-                windowList[i].rect = ConstrainRect(windowList[i].rect, NodeViewSize);
+                windowList[i].rect = SgtEditorUtility.ConstrainRect(windowList[i].rect, NodeViewSize, this);
             }
             EndWindows();
         }
@@ -325,7 +325,7 @@ namespace Griphone.Sagittarius
                 GUI.enabled = windowList[id].selectedDataIndex >= 0 && e;
                 if (GUILayout.Button("同期"))
                 {
-                    OnClickSyncButton();
+                    OnClickSyncButton(id);
                 }
                 GUI.enabled = enable;
             }
@@ -376,32 +376,21 @@ namespace Griphone.Sagittarius
         }
 
         // 同期ボタンを押した時の挙動.
-        private void OnClickSyncButton()
+        private void OnClickSyncButton(int windowId)
         {
-            // TODO
-        }
+            var scene = Current.sceneList[selectedSceneIndex];
+            var syncTargetRectIndex = windowList[windowId].selectedDataIndex - 1;
 
-        // Window間にベジェ曲線でラインを引きます.
-        void CurveFronTo(Rect wr, Rect wr2, Color color, Color shadow)
-        {
-            Drawing.bezierLine(
-                new Vector2(wr.x + wr.width, wr.y + 1 + wr.height / 2),
-                new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + 3 + wr.height / 2),
-                new Vector2(wr2.x, wr2.y + 1 + wr2.height / 2),
-                new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + 3 + wr2.height / 2), shadow, 3, true, 20);
-            Drawing.bezierLine(
-                new Vector2(wr.x + wr.width, wr.y + wr.height / 2),
-                new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + wr.height / 2),
-                new Vector2(wr2.x, wr2.y + wr2.height / 2),
-                new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + wr2.height / 2), color, 2, true, 20);
-        }
+            for (int i = 0; i < scene.dataIndex.Count; ++i)
+            {
+                if (scene.dataIndex[i] == syncTargetRectIndex)
+                {
+                    Debug.Log("Sync from " + scene.dataIndex[i] + " to " + windowId);
+                    scene.dataIndex[i] = windowId;
+                }
+            }
 
-        // Windowの領域に制限をかけます
-        Rect ConstrainRect(Rect window, Rect constraintsSize)
-        {
-            window.x = Mathf.Clamp(window.x, position.x - constraintsSize.x, constraintsSize.width - window.width);
-            window.y = Mathf.Clamp(window.y, position.y - constraintsSize.y, constraintsSize.height - window.height);
-            return window;
+            scene.Clean();
         }
     }
 }

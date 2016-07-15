@@ -192,62 +192,14 @@ MonoBehaviour:
       elementId: 5
       isSelected: 0
     sceneList:
-    - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
+    - dataIndex: ffffffff00000000ffffffff01000000ffffffffffffffff
       rectData:
+      - position: {x: 0, y: 0}
+        scale: {x: 0, y: 0}
       - position: {x: 0, y: 0}
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
-    - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
-      rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
-    - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
-      rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
-    - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
-      rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
-  - id: 0004
-    name: 
-    sizeId: 0
-    isLock: 0
-    texList:
-    - tex: {fileID: 0}
-      path: 
-      elementId: 0
-      isSelected: 0
-    - tex: {fileID: 0}
-      path: 
-      elementId: 1
-      isSelected: 0
-    - tex: {fileID: 0}
-      path: 
-      elementId: 2
-      isSelected: 0
-    - tex: {fileID: 0}
-      path: 
-      elementId: 3
-      isSelected: 0
-    - tex: {fileID: 0}
-      path: 
-      elementId: 4
-      isSelected: 0
-    - tex: {fileID: 0}
-      path: 
-      elementId: 5
-      isSelected: 0
-    sceneList:
-    - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
-      rectData: []
-    - dataIndex: 0000000001000000ffffffffffffffffffffffffffffffff
-      rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
       - position: {x: 0, y: 0}
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff

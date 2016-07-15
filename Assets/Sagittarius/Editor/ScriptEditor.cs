@@ -20,12 +20,12 @@ public class ScriptEditor : EditorWindow
     }
     void curveFromTo(Rect wr, Rect wr2, Color color, Color shadow)
     {
-        Drawing.bezierLine(
+        Drawing.BezierLine(
             new Vector2(wr.x + wr.width, wr.y + 3 + wr.height / 2),
             new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + 3 + wr.height / 2),
             new Vector2(wr2.x, wr2.y + 3 + wr2.height / 2),
             new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + 3 + wr2.height / 2), shadow, 5, true, 20);
-        Drawing.bezierLine(
+        Drawing.BezierLine(
             new Vector2(wr.x + wr.width, wr.y + wr.height / 2),
             new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + wr.height / 2),
             new Vector2(wr2.x, wr2.y + wr2.height / 2),

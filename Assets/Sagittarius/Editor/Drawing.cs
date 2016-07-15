@@ -36,11 +36,11 @@ namespace Griphone.Sagittarius
                 Vector3 dz = new Vector3(pointA.x, pointA.y, 0);
 
                 GUI.color = color;
-                GUI.matrix = translationMatrix(dz) * GUI.matrix;
+                GUI.matrix = TranslationMatrix(dz) * GUI.matrix;
                 GUIUtility.ScaleAroundPivot(new Vector2(m, width), new Vector3(-0.5f, 0, 0));
-                GUI.matrix = translationMatrix(-dz) * GUI.matrix;
+                GUI.matrix = TranslationMatrix(-dz) * GUI.matrix;
                 GUIUtility.RotateAroundPivot(angle, Vector2.zero);
-                GUI.matrix = translationMatrix(dz + new Vector3(width / 2, -m / 2) * Mathf.Sin(angle * Mathf.Deg2Rad)) * GUI.matrix;
+                GUI.matrix = TranslationMatrix(dz + new Vector3(width / 2, -m / 2) * Mathf.Sin(angle * Mathf.Deg2Rad)) * GUI.matrix;
 
                 if (!antiAlias)
                     GUI.DrawTexture(new Rect(0, 0, 1, 1), lineTex);
@@ -51,13 +51,13 @@ namespace Griphone.Sagittarius
             GUI.color = savedColor;
         }
 
-        public static void bezierLine(Vector2 start, Vector2 startTangent, Vector2 end, Vector2 endTangent, Color color,
+        public static void BezierLine(Vector2 start, Vector2 startTangent, Vector2 end, Vector2 endTangent, Color color,
             float width, bool antiAlias, int segments)
         {
-            Vector2 lastV = cubeBezier(start, startTangent, end, endTangent, 0);
+            Vector2 lastV = CubeBezier(start, startTangent, end, endTangent, 0);
             for (int i = 1; i <= segments; ++i)
             {
-                Vector2 v = cubeBezier(start, startTangent, end, endTangent, i / (float)segments);
+                Vector2 v = CubeBezier(start, startTangent, end, endTangent, i/(float) segments);
 
                 Drawing.DrawLine(
                     lastV,
@@ -67,14 +67,28 @@ namespace Griphone.Sagittarius
             }
         }
 
-        private static Vector2 cubeBezier(Vector2 s, Vector2 st, Vector2 e, Vector2 et, float t)
+        public static void CurveFronTo(Rect wr, Rect wr2, Color color, Color shadow)
+        {
+            BezierLine(
+                new Vector2(wr.x + wr.width, wr.y + 1 + wr.height / 2),
+                new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + 3 + wr.height / 2),
+                new Vector2(wr2.x, wr2.y + 1 + wr2.height / 2),
+                new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + 3 + wr2.height / 2), shadow, 3, true, 20);
+            BezierLine(
+                new Vector2(wr.x + wr.width, wr.y + wr.height / 2),
+                new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + wr.height / 2),
+                new Vector2(wr2.x, wr2.y + wr2.height / 2),
+                new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + wr2.height / 2), color, 2, true, 20);
+        }
+
+        private static Vector2 CubeBezier(Vector2 s, Vector2 st, Vector2 e, Vector2 et, float t)
         {
             float rt = 1 - t;
             float rtt = rt * t;
             return rt * rt * rt * s + 3 * rt * rtt * st + 3 * rtt * t * et + t * t * t * e;
         }
 
-        private static Matrix4x4 translationMatrix(Vector3 v)
+        private static Matrix4x4 TranslationMatrix(Vector3 v)
         {
             return Matrix4x4.TRS(v, Quaternion.identity, Vector3.one);
         }

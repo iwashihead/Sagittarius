@@ -44,21 +44,45 @@ namespace Griphone.Sagittarius
         /// </summary>
         public void Clean()
         {
-            int[] refs = new int[rectData.Count];
+            // RectDataクラス参照のリスト.
+            var refList = new List<RectData>(new RectData[dataIndex.Count]);
+            for (int i = 0; i < dataIndex.Count; ++i)
+            {
+                if (dataIndex[i] >= 0)
+                {
+                    refList[i] = rectData[dataIndex[i]];
+                }
+                else
+                {
+                    refList[i] = null;
+                }
+            }
 
-            int cnt = rectData.Count;
-            List<RectData> removeList = new List<RectData>();
-            for (int i = 0; i < cnt; ++i)
+            var removeList = new List<RectData>();
+            for (int i = 0; i < rectData.Count; ++i)
             {
                 if (dataIndex.Contains(i) == false)
                 {
+                    // 参照されていないRectDataを削除対象に登録.
                     removeList.Add(rectData[i]);
                 }
             }
 
             foreach (var item in removeList)
             {
+                // 実体データの削除.
                 rectData.Remove(item);
+                // 削除データの参照はnullに.
+                refList.ForEach(_ =>
+                {
+                    if (_ == item) _ = null;
+                });
+            }
+
+            // Index情報を更新する.
+            for (int i = 0; i < refList.Count; i++)
+            {
+                dataIndex[i] = refList == null ? -1 : rectData.IndexOf(refList[i]);
             }
         }
     }

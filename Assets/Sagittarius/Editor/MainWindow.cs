@@ -12,6 +12,39 @@ namespace Griphone.Sagittarius
         {
             get { return instance ?? (instance = GetWindow<MainWindow>()); }
         }
+
+        /// <summary>
+        /// ノード領域サイズ.
+        /// </summary>
+        private static Rect NodeViewSize
+        {
+            get
+            {
+                return new Rect(
+                    Instance.position.x - ConstrainX,
+                    Instance.position.y - ConstrainY,
+                    Instance.position.width - ConstrainW,
+                    Instance.position.height - ConstrainH);
+            }
+        }
+
+        private const float ConstrainX = 120;
+        private const float ConstrainY = 180;
+        private const float ConstrainW = 20;
+        private const float ConstrainH = 20;
+        private const float NodeStartY = 200;
+        private const float ElementStartY = 256 - 75;
+        private const float ElementHeight = 41.31f;
+
+        private class NodeWindow
+        {
+            public Rect rect;
+        }
+
+        private class DataNodeWindow : NodeWindow
+        {
+            public int selectedDataIndex;
+        }
         #endregion
 
         // 編集対象のデータ.
@@ -21,7 +54,7 @@ namespace Griphone.Sagittarius
         private Settings setting { get { return Settings.Instance; } }
         private Vector2 tabScrollPos;
         private int selectedSceneIndex;
-        private List<Rect> windwList = new List<Rect>();
+        private List<DataNodeWindow> windowList = new List<DataNodeWindow>();
 
         // GUI描画イベント.
         public void OnGUI()
@@ -31,7 +64,17 @@ namespace Griphone.Sagittarius
 
             DrawSelectedItemInfo();
             DrawTextureArea();
+
+//            ConstrainX = EditorGUILayout.FloatField("ConstrainX", ConstrainX);
+//            ConstrainY = EditorGUILayout.FloatField("ConstrainY", ConstrainY);
+//            ConstrainW = EditorGUILayout.FloatField("ConstrainW", ConstrainW);
+//            ConstrainH = EditorGUILayout.FloatField("ConstrainH", ConstrainH);
+
+            EditorGUILayout.BeginVertical(GUI.skin.box);
             DrawDataLinkArea();
+            DrawDataNodes();
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndVertical();
 
             GUI.enabled = true;
         }
@@ -120,11 +163,8 @@ namespace Griphone.Sagittarius
         // 属性毎のデータとの紐付きを表示します.
         private void DrawDataLinkArea()
         {
-            EditorGUILayout.BeginVertical(GUI.skin.box);
             DrawTabList();
             DrawDataList();
-
-            EditorGUILayout.EndVertical();
         }
 
         // シーンタブ一覧を表示します.
@@ -135,10 +175,13 @@ namespace Griphone.Sagittarius
             int index = 0;
             foreach (var scene in setting.SceneList)
             {
+                var col = GUI.backgroundColor;
+                GUI.backgroundColor = selectedSceneIndex == index ? Color.cyan : col;
                 if (GUILayout.Button(scene.name, GUILayout.Width(100)))
                 {
                     selectedSceneIndex = index;
                 }
+                GUI.backgroundColor = col;
                 index++;
             }
 
@@ -202,6 +245,7 @@ namespace Griphone.Sagittarius
                 // 未指定の場合、新しいデータを作成し、そのデータを参照する.
                 scene.rectData.Add(new RectData());
                 scene.dataIndex[elementId] = scene.rectData.Count - 1;
+                scene.Clean();
             }
             else
             {
@@ -215,9 +259,149 @@ namespace Griphone.Sagittarius
             }
         }
 
+        // 属性とデータの紐付きをノードで表示します.
         private void DrawDataNodes()
         {
-            
+            if (windowList == null)
+            {
+                windowList = new List<DataNodeWindow>();
+            }
+
+            var scene = Current.sceneList[selectedSceneIndex];
+
+            // Windowの初期化.
+            for (int i = 0; i < scene.rectData.Count; ++i)
+            {
+                if (windowList.Count <= i)
+                {
+                    Debug.Log("Add Window");
+                    windowList.Add(new DataNodeWindow()
+                    {
+                        rect = new Rect(200, NodeStartY + 60 * i, 280, 50),
+                        selectedDataIndex = -1
+                    });
+                }
+            }
+
+            // Nodeラインの表示.
+            for (int i = 0; i < scene.dataIndex.Count; ++i)
+            {
+                if (scene.dataIndex[i] < 0) continue;
+                var elementRect = new Rect(0, ElementStartY + ElementHeight * i, 100, 50);
+                var window = windowList[scene.dataIndex[i]];
+                CurveFronTo(elementRect, window.rect, setting.ElementList[i].color, new Color(0.2f, 0.2f, 0.2f, 1f));
+            }
+
+            // Nodeウインドウの表示.
+            BeginWindows();
+            for (int i = 0; i < scene.rectData.Count; ++i)
+            {
+                // Windowの描画.
+                windowList[i].rect = GUI.Window(i, windowList[i].rect, DrawNodeWindow, "領域データ " + i);
+                // Windowの移動位置制限.
+                windowList[i].rect = ConstrainRect(windowList[i].rect, NodeViewSize);
+            }
+            EndWindows();
+        }
+
+        // ノード形式のウインドウを表示します.
+        private void DrawNodeWindow(int id)
+        {
+            var e = GUI.enabled;
+            GUI.enabled = !Current.isLock;
+
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("編集")) { OnClickEditButton(); }
+            EditorGUILayout.Space();
+            if (GUILayout.Button("プレビュー")) { OnClickPreviewButton(); }
+
+            var col = GUI.backgroundColor;
+            GUI.backgroundColor = Color.red;
+            if (GUILayout.Button("消去")) { OnClickDeleteButton(id); }
+            GUI.backgroundColor = col;
+
+            {
+                var enable = GUI.enabled;
+                GUI.enabled = windowList[id].selectedDataIndex >= 0 && e;
+                if (GUILayout.Button("同期"))
+                {
+                    OnClickSyncButton();
+                }
+                GUI.enabled = enable;
+            }
+
+            var popupList = new List<string>(new []{ "" });
+            for (int i = 0; i < Current.sceneList[selectedSceneIndex].rectData.Count; ++i)
+            {
+                popupList.Add(i.ToString());
+            }
+            windowList[id].selectedDataIndex = EditorGUILayout.Popup(
+                windowList[id].selectedDataIndex,
+                popupList.ToArray());
+
+            EditorGUILayout.EndHorizontal();
+            GUI.DragWindow();
+
+            GUI.enabled = e;
+        }
+
+        // 編集ボタンを押した時の挙動.
+        private void OnClickEditButton()
+        {
+            // TODO
+        }
+
+        // プレビューボタンを押した時の挙動.
+        private void OnClickPreviewButton()
+        {
+            // TODO
+        }
+
+        // 削除ボタンを押した時の挙動.
+        private void OnClickDeleteButton(int windowId)
+        {
+            var result = EditorUtility.DisplayDialog("確認", "領域データ " + windowId + " を削除します。\nよろしいですか？", "OK", "Cancel");
+            if (result)
+            {
+                var scene = Current.sceneList[selectedSceneIndex];
+                scene.rectData[windowId] = null;
+                for (int i = 0; i < scene.dataIndex.Count; i++)
+                {
+                    if (scene.dataIndex[i] == windowId)
+                        scene.dataIndex[i] = -1;
+                }
+                windowList.RemoveAt(windowId);
+                scene.Clean();
+            }
+        }
+
+        // 同期ボタンを押した時の挙動.
+        private void OnClickSyncButton()
+        {
+            // TODO
+        }
+
+        // Window間にベジェ曲線でラインを引きます.
+        void CurveFronTo(Rect wr, Rect wr2, Color color, Color shadow)
+        {
+            Drawing.bezierLine(
+                new Vector2(wr.x + wr.width, wr.y + 1 + wr.height / 2),
+                new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + 3 + wr.height / 2),
+                new Vector2(wr2.x, wr2.y + 1 + wr2.height / 2),
+                new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + 3 + wr2.height / 2), shadow, 3, true, 20);
+            Drawing.bezierLine(
+                new Vector2(wr.x + wr.width, wr.y + wr.height / 2),
+                new Vector2(wr.x + wr.width + Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr.y + wr.height / 2),
+                new Vector2(wr2.x, wr2.y + wr2.height / 2),
+                new Vector2(wr2.x - Mathf.Abs(wr2.x - (wr.x + wr.width)) / 2, wr2.y + wr2.height / 2), color, 2, true, 20);
+        }
+
+        // Windowの領域に制限をかけます
+        Rect ConstrainRect(Rect window, Rect constraintsSize)
+        {
+            window.x = Mathf.Clamp(window.x, position.x - constraintsSize.x, constraintsSize.width - window.width);
+            window.y = Mathf.Clamp(window.y, position.y - constraintsSize.y, constraintsSize.height - window.height);
+            return window;
         }
     }
 }

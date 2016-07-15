@@ -42,6 +42,7 @@ namespace Griphone.Sagittarius
             DrawAddItemView();
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos, false, true);
             DrawItemList();
+            DrawSaveButton();
             EditorGUILayout.EndScrollView();
         }
 
@@ -144,6 +145,17 @@ namespace Griphone.Sagittarius
                 EditorGUILayout.EndHorizontal();
             }
 
+            EditorGUILayout.EndVertical();
+        }
+
+        private void DrawSaveButton()
+        {
+            EditorGUILayout.BeginVertical(GUI.skin.box);
+            if (GUILayout.Button("保存"))
+            {
+                dataList.SetDirty();
+                AssetDatabase.SaveAssets();
+            }
             EditorGUILayout.EndVertical();
         }
 

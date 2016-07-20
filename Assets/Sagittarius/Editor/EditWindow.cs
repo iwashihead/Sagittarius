@@ -204,6 +204,18 @@ namespace Griphone.Sagittarius
         private void OnClickFlip()
         {
             CurrentRect.scale.x *= -1;
+
+            var selectedElementIds = Current.sceneList[SelectedSceneIndex].GetSelectedElementIdList(SelectedRectIndex);
+            var texs = selectedElementIds.ConvertAll(_ => Current.texList[_]);
+
+            if (CurrentRect.scale.x > 0)
+            {
+                CurrentRect.rect.x -= texs.Find(_ => _.Texture != null).Texture.width;
+            }
+            else if (CurrentRect.scale.x < 0)
+            {
+                CurrentRect.rect.x += texs.Find(_ => _.Texture != null).Texture.width;
+            }
         }
 
         // センターガイド切替ボタンを押した時の挙動.
@@ -270,8 +282,8 @@ namespace Griphone.Sagittarius
                 var w = info.Texture.width * CurrentRect.scale.x * EditorZoomAmount;
                 var h = info.Texture.height * CurrentRect.scale.y * EditorZoomAmount;
                 //Debug.Log("DrawTexture : " + new Rect(x, y, w, h) + " scale : " + CurrentRect.scale + " zoom : " + EditorZoomAmount);
-                //GUI.DrawTexture(new Rect(x, y, w, h), info.Texture);
-                GUI.Box(new Rect(x, y, w, h), info.Texture);
+                GUI.DrawTexture(new Rect(x, y, w, h), info.Texture);
+                //GUI.Box(new Rect(x, y, w, h), info.Texture);
             }
         }
 

@@ -17,50 +17,75 @@ MonoBehaviour:
     sizeId: 0
     isLock: 0
     texList:
-    - tex: {fileID: 0}
-      path: 
+    - tex: {fileID: 2800000, guid: 27ca148ee098d874aa75e6c0b1e0324a, type: 3}
+      path: Assets/Resources/f329.png
       elementId: 0
-      isSelected: 0
-    - tex: {fileID: 0}
-      path: 
+      isSelected: 1
+    - tex: {fileID: 2800000, guid: 27ca148ee098d874aa75e6c0b1e0324a, type: 3}
+      path: Assets/Resources/f329.png
       elementId: 1
       isSelected: 0
-    - tex: {fileID: 0}
-      path: 
+    - tex: {fileID: 2800000, guid: 27ca148ee098d874aa75e6c0b1e0324a, type: 3}
+      path: Assets/Resources/f329.png
       elementId: 2
       isSelected: 0
-    - tex: {fileID: 0}
-      path: 
+    - tex: {fileID: 2800000, guid: 27ca148ee098d874aa75e6c0b1e0324a, type: 3}
+      path: Assets/Resources/f329.png
       elementId: 3
       isSelected: 0
-    - tex: {fileID: 0}
-      path: 
+    - tex: {fileID: 2800000, guid: 27ca148ee098d874aa75e6c0b1e0324a, type: 3}
+      path: Assets/Resources/f329.png
       elementId: 4
       isSelected: 0
-    - tex: {fileID: 0}
-      path: 
+    - tex: {fileID: 2800000, guid: 27ca148ee098d874aa75e6c0b1e0324a, type: 3}
+      path: Assets/Resources/f329.png
       elementId: 5
       isSelected: 0
     sceneList:
     - dataIndex: 00000000ffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
   - id: 0002
     name: 
@@ -94,23 +119,48 @@ MonoBehaviour:
     sceneList:
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
   - id: 0003
     name: 
@@ -144,23 +194,48 @@ MonoBehaviour:
     sceneList:
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
   - id: 0004
     name: 
@@ -194,23 +269,53 @@ MonoBehaviour:
     sceneList:
     - dataIndex: ffffffff0000000000000000000000000100000001000000
       rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        scale: {x: 1, y: 1}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
+        scale: {x: 1, y: 1}
+    - dataIndex: ffffffff00000000ffffffffffffffffffffffffffffffff
+      rectData:
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}
     - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
       rectData:
-      - position: {x: 0, y: 0}
-        scale: {x: 0, y: 0}
-    - dataIndex: ffffffffffffffffffffffffffffffffffffffffffffffff
-      rectData:
-      - position: {x: 0, y: 0}
+      - rect:
+          serializedVersion: 2
+          x: 0
+          y: 0
+          width: 0
+          height: 0
         scale: {x: 0, y: 0}

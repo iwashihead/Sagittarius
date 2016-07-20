@@ -9,7 +9,14 @@ namespace Griphone.Sagittarius
     [Serializable]
     public class RectData
     {
-        public Vector2 position;
+        public Rect rect;
         public Vector2 scale;
+
+        public RectData() { }
+        public RectData(Texture2D tex)
+        {
+            rect = new Rect(0, 0, tex.width, tex.height);
+            scale = Vector2.one;
+        }
     }
 }

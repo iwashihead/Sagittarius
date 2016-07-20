@@ -47,7 +47,6 @@ namespace Griphone.Sagittarius
         /// </summary>
         public List<DrawScene> SceneList;
 
-
         public Settings()
         {
             SizeList = new List<string>();

@@ -85,5 +85,18 @@ namespace Griphone.Sagittarius
                 dataIndex[i] = refList == null ? -1 : rectData.IndexOf(refList[i]);
             }
         }
+
+        /// <summary>
+        /// 領域情報のIndexから選択されている属性Indexのリストを取得します.
+        /// </summary>
+        public List<int> GetSelectedElementIdList(int rectDataIndex)
+        {
+            var ret = new List<int>();
+            foreach (var i in dataIndex)
+            {
+                if (i == rectDataIndex) ret.Add(i);
+            }
+            return ret;
+        }
     }
 }

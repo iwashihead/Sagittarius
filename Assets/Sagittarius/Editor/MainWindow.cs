@@ -77,10 +77,10 @@ namespace Griphone.Sagittarius
         // 選択中のアイテムを表示する領域.
         private void DrawSelectedItemInfo()
         {
-            SgtEditorUtility.DrawVertical(() =>
+            SgtEditorUtility.VerticalBlock(() =>
             {
                 Current.name = EditorGUILayout.TextField("ID : " + Current.id, Current.name);
-                SgtEditorUtility.DrawHorizontal(() =>
+                SgtEditorUtility.HorizontalBlock(() =>
                 {
                     EditorGUILayout.LabelField("サイズ : ");
                     Current.sizeId = EditorGUILayout.Popup(Current.sizeId, setting.SizeList.ToArray());
@@ -306,9 +306,9 @@ namespace Griphone.Sagittarius
             GUI.enabled = !Current.isLock;
 
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("編集")) { OnClickEditButton(); }
+            if (GUILayout.Button("編集")) { OnClickEditButton(id); }
             EditorGUILayout.Space();
-            if (GUILayout.Button("プレビュー")) { OnClickPreviewButton(); }
+            if (GUILayout.Button("プレビュー")) { OnClickPreviewButton(id); }
 
             var col = GUI.backgroundColor;
             GUI.backgroundColor = Color.red;
@@ -348,16 +348,21 @@ namespace Griphone.Sagittarius
         }
 
         // 編集ボタンを押した時の挙動.
-        private void OnClickEditButton()
+        private void OnClickEditButton(int windowId)
         {
             EditWindow.Instance.Current = Current;
             EditWindow.Instance.SelectedSceneIndex = selectedSceneIndex;
+            EditWindow.Instance.SelectedRectIndex = windowId;
+            EditWindow.Instance.IsPreviewMode = false;
         }
 
         // プレビューボタンを押した時の挙動.
-        private void OnClickPreviewButton()
+        private void OnClickPreviewButton(int windowId)
         {
-            // TODO
+            EditWindow.Instance.Current = Current;
+            EditWindow.Instance.SelectedSceneIndex = selectedSceneIndex;
+            EditWindow.Instance.SelectedRectIndex = windowId;
+            EditWindow.Instance.IsPreviewMode = true;
         }
 
         // 削除ボタンを押した時の挙動.

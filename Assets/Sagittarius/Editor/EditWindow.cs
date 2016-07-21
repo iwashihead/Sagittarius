@@ -10,7 +10,7 @@ namespace Griphone.Sagittarius
     /// <summary>
     /// 画像の領域を編集するウインドウ.
     /// </summary>
-    public class EditWindow : EditorWindow
+    public class EditWindow : DraggableWindow
     {
         private const string FrameTexPath = "Assets/Sagittarius/Textures/black_8x8.png";
         private const string TargetAreaTexPath = "Assets/Sagittarius/Textures/targetArea.png";
@@ -25,6 +25,7 @@ namespace Griphone.Sagittarius
                 {
                     instance = GetWindow<EditWindow>(true);
                     EditorApplication.update = instance.Update;
+                    instance.Initialize();
                 }
                 return instance;
             }
@@ -51,19 +52,18 @@ namespace Griphone.Sagittarius
         }
         #endregion
 
-        #region Private Declaration
-
+        #region Public Declaration
         // 編集対象のデータ.
-        // このデータはMainWindowからセットされます.
+        // このデータはMainWindowからセットされます
         public UnitData Current { get; set; }
         // 対象シーン.
-        // このデータはMainWindowからセットされます.
+        // このデータはMainWindowからセットされます
         public int SelectedSceneIndex { get; set; }
         // 対象データIndex.
-        // このデータはMainWindowからセットされます.
+        // このデータはMainWindowからセットされます
         public int SelectedRectIndex { get; set; }
         // プレビューモードかどうか.
-        // このデータはMainWindowからセットされます.
+        // このデータはMainWindowからセットされます
         public bool IsPreviewMode { get; set; }
 
         // 編集中の領域データ.
@@ -82,6 +82,24 @@ namespace Griphone.Sagittarius
                 return null;
             }
         }
+        // 選択中のテクスチャ.
+        public List<Texture2D> SelectedTextures
+        {
+            get
+            {
+                try
+                {
+                    var selectedElementIds = Current.sceneList[SelectedSceneIndex].GetSelectedElementIdList(SelectedRectIndex);
+                    return selectedElementIds.ConvertAll(_ => Current.texList[_].Texture);
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
+
+        #region EditorPrefs
         // センターガイドライン表示フラグ
         public bool EnableCenterGuide
         {
@@ -106,20 +124,40 @@ namespace Griphone.Sagittarius
             get { return EditorPrefs.GetFloat("EditorZoomAmount", 1f); }
             set
             {
-                EditorPrefs.SetFloat("EditorZoomAmount", value);
+                var clamped = Mathf.Clamp(value, 0.1f, 3f);
+                EditorPrefs.SetFloat("EditorZoomAmount", clamped);
                 Repaint();
             }
         }
+        // 画面X位置
+        public float EditorPosX
+        {
+            get { return EditorPrefs.GetFloat("EditorPosX", 0f); }
+            set { EditorPrefs.SetFloat("EditorPosX", value); }
+        }
+        // 画面Y位置
+        public float EditorPosY
+        {
+            get { return EditorPrefs.GetFloat("EditorPosY", 0f); }
+            set { EditorPrefs.SetFloat("EditorPosY", value); }
+        }
+        #endregion
+        #endregion
+
+        #region Private Declaration
 
         private Settings setting
         {
             get { return Settings.Instance; }
         }
 
-        private Vector2 scrollPos;
-        private Vector2 centerPos;
+        private bool[] pressState = new bool[Enum.GetValues(typeof (KeyCode)).Length];
         private bool pressCtrl;
         private float? wheelAmount = null;
+        private Vector2 mousePos;
+        private Rectangle baseRect;
+        private Vector2 editorDragStartPos;
+        private Vector2 editorDragStartMouse;
 
         #endregion
 
@@ -130,45 +168,60 @@ namespace Griphone.Sagittarius
             instance = Instance;
         }
 
-        // GUI更新.
-        private void GUIUpdate()
+        // 初期化.
+        protected virtual void Initialize()
         {
-            Event e = Event.current;
-            do
+            if (SelectedTextures != null && SelectedTextures.Count > 0)
             {
-                if (e != null)
-                {
-                    if (e.type == EventType.scrollWheel)
-                    {
-                        wheelAmount = e.delta.y;
-                    }
-
-                    if (!pressCtrl && e.type == EventType.keyDown)
-                    {
-                        if (e.keyCode == KeyCode.LeftControl || e.keyCode == KeyCode.RightControl)
-                        {
-                            pressCtrl = true;
-                        }
-                    }
-                }
-            } while (Event.PopEvent(e));
-        }
-
-        // 更新.
-        private void Update()
-        {
-            if (pressCtrl && wheelAmount.HasValue)
-            {
-                EditorZoomAmount += wheelAmount.Value * 0.01f;
+                if (CurrentRect.rect.width.Equals(0))
+                    CurrentRect.rect.width = SelectedTextures[0].width;
+                if (CurrentRect.rect.height.Equals(0))
+                    CurrentRect.rect.height = SelectedTextures[0].height;
             }
 
-            // reset
-            pressCtrl = false;
-            wheelAmount = null;
+            // ドラッグ可能オブジェクトの登録.
+            // ユニットのテクスチャ
+            // ユニットのテクスチャの4隅
+            // それ以外の領域
+            baseRect = new Rectangle(0, 0, position.width, position.height);
+            RegisterDrag(0, baseRect, null, OnBaseDragStart, OnBaseDrag, OnBaseDragEnd);
         }
 
+        #region Base Drag
+        void OnBaseDragStart(Vector2 mousePos, DragObject o)
+        {
+            editorDragStartMouse = mousePos;
+            editorDragStartPos = new Vector2(EditorPosX, EditorPosY);
+        }
+
+        void OnBaseDrag(Vector2 mousePos, DragObject o)
+        {
+            var move = mousePos - editorDragStartMouse;
+            EditorPosX = editorDragStartPos.x + move.x / EditorZoomAmount;
+            EditorPosY = editorDragStartPos.y + move.y / EditorZoomAmount;
+            Repaint();
+        }
+
+        void OnBaseDragEnd(Vector2 mousePos, DragObject o)
+        {
+            var move = mousePos - editorDragStartMouse;
+            EditorPosX = editorDragStartPos.x + move.x / EditorZoomAmount;
+            EditorPosY = editorDragStartPos.y + move.y / EditorZoomAmount;
+            Repaint();
+        }
+        #endregion
+
+        #region Unit Drag
+
+        void OnUnitDragStart(Vector2 pos, DragObject o)
+        {
+            
+        }
+        #endregion
+
+
         // GUI描画イベント.
-        public void OnGUI()
+        protected override void OnGUI()
         {
             GUI.enabled = !IsPreviewMode;
             
@@ -182,21 +235,67 @@ namespace Griphone.Sagittarius
 
             GUI.enabled = true;
 
-            GUIUpdate();
+            base.OnGUI();
+        }
+
+        // GUI入力イベント.
+        protected override void OnGuiEvent(Event e)
+        {
+            if (e != null)
+            {
+                mousePos = e.mousePosition;
+                if (e.type == EventType.scrollWheel)
+                {
+                    wheelAmount = e.delta.y;
+                }
+
+                if (e.type == EventType.keyDown)
+                {
+                    pressState[(int) e.keyCode] = true;
+                    if (!pressCtrl && e.keyCode == KeyCode.LeftControl || e.keyCode == KeyCode.RightControl)
+                    {
+                        pressCtrl = true;
+                    }
+                }
+            }
+
+            base.OnGuiEvent(e);
+        }
+
+        // 更新.
+        private void Update()
+        {
+            if (pressCtrl && wheelAmount.HasValue)
+            {
+                EditorZoomAmount -= wheelAmount.Value * 0.05f;
+            }
+
+            // reset
+            pressCtrl = false;
+            wheelAmount = null;
+            Array.ForEach(pressState, _ => _ = false);
         }
 
         #region Menu
         private void DrawMenu()
         {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
+
             if (GUILayout.Button("左右反転", GUILayout.MaxWidth(150))) OnClickFlip();
             if (GUILayout.Button("センターガイド ON/OFF", GUILayout.MaxWidth(150))) OnClickCenterGuide();
             if (GUILayout.Button("1/3ライン ON/OFF", GUILayout.MaxWidth(150))) OnClickOneThirdLine();
             if (GUILayout.Button("フレーム ON/OFF", GUILayout.MaxWidth(150))) OnClickFrame();
+            
+
+            if (GUILayout.Button("位置リセット", GUILayout.MaxWidth(150))) { EditorPosX = EditorPosY = 0f; }
+            if (GUILayout.Button("Zoomリセット", GUILayout.MaxWidth(150))) { CurrentRect.scale = Vector2.one; }
+
+
             var col = GUI.backgroundColor;
             GUI.backgroundColor = Color.magenta;
             if (GUILayout.Button("確定", GUILayout.MaxWidth(150))) OnClickConfirm();
             GUI.backgroundColor = col;
+            EditorZoomAmount = GUI.HorizontalSlider(new Rect(position.width - 200, position.height - 20, 200, 20), EditorZoomAmount, 0.1f, 3f);
             EditorGUILayout.EndHorizontal();
         }
 
@@ -261,11 +360,14 @@ namespace Griphone.Sagittarius
         private void DrawTargetRect()
         {
             var drawScene = setting.SceneList[SelectedSceneIndex];
-            var x = position.width / 2 - drawScene.width / 2 * EditorZoomAmount;
-            var y = position.height / 2 - drawScene.height / 2 * EditorZoomAmount;
-            var w = drawScene.width * EditorZoomAmount;
-            var h = drawScene.height * EditorZoomAmount;
-            GUI.DrawTexture(new Rect(x, y, w, h), TargetAreaTex);
+            if (drawScene != null)
+            {
+                var x = position.width/2 - drawScene.width/2*EditorZoomAmount;
+                var y = position.height/2 - drawScene.height/2*EditorZoomAmount;
+                var w = drawScene.width*EditorZoomAmount;
+                var h = drawScene.height*EditorZoomAmount;
+                GUI.DrawTexture(new Rect(x, y, w, h), TargetAreaTex);
+            }
         }
 
         // ユニットイラストを表示
@@ -277,8 +379,8 @@ namespace Griphone.Sagittarius
 
             foreach (var info in texs)
             {
-                var x = (position.width / 2 - drawScene.width / 2 + CurrentRect.rect.x) * EditorZoomAmount;
-                var y = (position.height / 2 - drawScene.height / 2 + CurrentRect.rect.y) * EditorZoomAmount;
+                var x = (position.width / 2 - CurrentRect.rect.width / 2) + (CurrentRect.rect.x + EditorPosX) * EditorZoomAmount;
+                var y = (position.height / 2 - CurrentRect.rect.width / 2) + (CurrentRect.rect.y + EditorPosY) * EditorZoomAmount;
                 var w = info.Texture.width * CurrentRect.scale.x * EditorZoomAmount;
                 var h = info.Texture.height * CurrentRect.scale.y * EditorZoomAmount;
                 //Debug.Log("DrawTexture : " + new Rect(x, y, w, h) + " scale : " + CurrentRect.scale + " zoom : " + EditorZoomAmount);

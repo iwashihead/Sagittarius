@@ -1,19 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 // Rect構造体のクラス版
+[Serializable]
 public class Rectangle
 {
     public float x, y, width, height;
-
-    public static bool operator !=(Rectangle lhs, Rectangle rhs)
-    {
-        return !lhs.x.Equals(rhs.x) || !lhs.y.Equals(rhs.y) || !lhs.width.Equals(rhs.width) || !lhs.height.Equals(rhs.height);
-    }
-
-    public static bool operator ==(Rectangle lhs, Rectangle rhs)
-    {
-        return lhs.x.Equals(rhs.x) && lhs.y.Equals(rhs.y) && lhs.width.Equals(rhs.width) && lhs.height.Equals(rhs.height);
-    }
 
     public Vector2 position
     {

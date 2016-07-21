@@ -1,71 +1,8 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using System.Linq;
-
-#region Sample
-//public class SampleWindow : DraggableWindow
-//{
-//    [MenuItem("Custom/SampleWindow/Open")]
-//    public static void Open()
-//    {
-//        instance = Instance;
-//    }
-//
-//    private static SampleWindow instance;
-//    public static SampleWindow Instance
-//    {
-//        get
-//        {
-//            if (instance == null)
-//            {
-//                instance = GetWindow<SampleWindow>();
-//                instance.Initialize();
-//            }
-//            return instance;
-//        }
-//    }
-//
-//    private List<Rectangle> BoxRects = new List<Rectangle>(); 
-//
-//    private void Initialize()
-//    {
-//        BoxRects.Add(new Rectangle(10, 10, 100, 100));
-//        BoxRects.Add(new Rectangle(150, 10, 100, 100));
-//        BoxRects.Add(new Rectangle(10, 150, 100, 100));
-//
-//        int priority = 0;
-//        foreach (var boxRect in BoxRects)
-//        {
-//            RegisterDrag(priority, boxRect, null,
-//                (mousePos, data) => {  },
-//                (mousePos, data) =>
-//                {
-//                    DragObject.Current.rect.position = mousePos + DragObject.Current.dragOffset;
-//                    Repaint();
-//                },
-//                (mousePos, data) =>
-//                {
-//                    DragObject.Current.rect.position = mousePos + DragObject.Current.dragOffset;
-//                    Repaint();
-//                });
-//            priority++;
-//        }
-//    }
-//
-//    protected override void OnGUI()
-//    {
-//        int priority = 0;
-//        foreach (var boxRect in BoxRects)
-//        {
-//            GUI.Box(boxRect.Rect, priority.ToString());
-//            priority++;
-//        }
-//
-//        base.OnGUI();
-//    }
-//}
-#endregion
 
 /// <summary>
 /// ドラッグ処理を内包したEditorWindow
@@ -81,6 +18,8 @@ public class DraggableWindow : EditorWindow
 
         public int priority;
         public Vector2 dragOffset;
+        public Func<float> scaleFunc;
+        public Func<float> windowScaleFunc; 
         public Rectangle rect;
         public object data;
         public DragDelegate onDragStart;
@@ -91,14 +30,17 @@ public class DraggableWindow : EditorWindow
     // ドラッグ対象のデータ.
     protected List<DragObject> dragObjects = new List<DragObject>();
     protected Vector2 dragStartPos;
+    private static readonly Func<float> DefaultScaleFunc = () => { return 1f; };
 
     // ドラッグオブジェクトの登録.
-    public void RegisterDrag(int priority, Rectangle rect, object data = null, DragDelegate onDragStart = null, DragDelegate onDrag = null, DragDelegate onDragEnd = null)
+    public void RegisterDrag(int priority, Rectangle rect, Func<float> scaleFunc = null, Func<float> windowScaleFunc = null, object data = null, DragDelegate onDragStart = null, DragDelegate onDrag = null, DragDelegate onDragEnd = null)
     {
         dragObjects.Add(new DragObject()
         {
             priority = priority,
             rect = rect,
+            scaleFunc = scaleFunc ?? DefaultScaleFunc,
+            windowScaleFunc = windowScaleFunc ?? DefaultScaleFunc,
             data = data,
             onDragStart = onDragStart,
             onDrag = onDrag,
@@ -107,58 +49,17 @@ public class DraggableWindow : EditorWindow
         dragObjects = dragObjects.OrderBy(_ => _.priority).ToList();
     }
 
-
     // 指定のRect上にマウスカーソルが位置しているかどうか.
-    protected bool IsHover(Rectangle rect, Vector2 mousePos)
+    protected bool IsHover(Rectangle rect, float scale, float windowScale, Vector2 mousePos)
     {
-        return mousePos.x > rect.x &&
-               mousePos.x < rect.x + rect.width &&
-               mousePos.y > rect.y &&
-               mousePos.y < rect.y + rect.height;
+        Debug.Log(string.Format("mouse:{0}  rect:{1}  scale:{2}  winScale:{3}", mousePos, rect, scale, windowScale));
+        return mousePos.x > rect.x * windowScale &&
+               mousePos.x < rect.x + rect.width * windowScale * scale &&
+               mousePos.y > rect.y * windowScale &&
+               mousePos.y < rect.y + rect.height * windowScale * scale;
     }
 
-    protected virtual void OnGuiEvent(Event e)
-    {
-        if (e == null) return;
-
-        if (e.type == EventType.MouseDown)
-        {
-            Debug.Log("Mouse Down");
-            foreach (var o in dragObjects.OrderBy(_ => _.priority))
-            {
-                if (o == null) continue;
-                if (IsHover(o.rect, e.mousePosition))
-                {
-                    dragStartPos = e.mousePosition;
-                    DragObject.Current = o;
-                    DragObject.Current.dragOffset = DragObject.Current.rect.position - e.mousePosition;
-                    DragObject.Current.onDragStart(e.mousePosition, DragObject.Current);
-                    break;
-                }
-            }
-        }
-        else if (e.type == EventType.MouseDrag)
-        {
-            Debug.Log("Mouse Drag");
-            if (DragObject.Current != null)
-            {
-                DragObject.Current.onDrag(e.mousePosition, DragObject.Current);
-            }
-        }
-        else if (e.type == EventType.MouseUp)
-        {
-            Debug.Log("Mouse Up");
-            if (DragObject.Current != null)
-            {
-                DragObject.Current.onDragEnd(e.mousePosition, DragObject.Current);
-                DragObject.Current.dragOffset = Vector2.zero;
-            }
-
-            // Current解除
-            DragObject.Current = null;
-        }
-    }
-
+    // GUI描画イベント.
     protected virtual void OnGUI()
     {
         Event e = Event.current;
@@ -166,5 +67,48 @@ public class DraggableWindow : EditorWindow
         {
             OnGuiEvent(e);
         } while (Event.PopEvent(e));
+    }
+
+    // GUI入力イベント.
+    protected virtual void OnGuiEvent(Event e)
+    {
+        if (e == null) return;
+
+        if (e.type == EventType.MouseDown)
+        {
+            foreach (var o in dragObjects.OrderBy(_ => _.priority))
+            {
+                if (o == null) continue;
+                if (IsHover(o.rect, o.scaleFunc(), o.windowScaleFunc(), e.mousePosition))
+                {
+                    dragStartPos = e.mousePosition;
+                    DragObject.Current = o;
+                    DragObject.Current.dragOffset = DragObject.Current.rect.position - e.mousePosition;
+                    DragObject.Current.onDragStart(e.mousePosition, DragObject.Current);
+                    Debug.Log(o.data);
+                    break;
+                }
+            }
+        }
+        else if (e.type == EventType.MouseDrag)
+        {
+            if (DragObject.Current != null)
+            {
+                Debug.Log(DragObject.Current.data);
+                DragObject.Current.onDrag(e.mousePosition, DragObject.Current);
+            }
+        }
+        else if (e.type == EventType.MouseUp)
+        {
+            if (DragObject.Current != null)
+            {
+                Debug.Log(DragObject.Current.data);
+                DragObject.Current.onDragEnd(e.mousePosition, DragObject.Current);
+                DragObject.Current.dragOffset = Vector2.zero;
+            }
+
+            // Current解除
+            DragObject.Current = null;
+        }
     }
 }

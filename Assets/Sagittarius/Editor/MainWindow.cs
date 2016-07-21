@@ -49,12 +49,18 @@ namespace Griphone.Sagittarius
 
         // 編集対象のデータ.
         // このデータはSelectWindowからセットされます.
-        public UnitData Current { get; set; }
+        public UnitData Current;
 
         private Settings setting { get { return Settings.Instance; } }
         private Vector2 tabScrollPos;
         private int selectedSceneIndex;
         private List<DataNodeWindow> windowList = new List<DataNodeWindow>();
+
+        // 破棄イベント.
+        public void OnDestroy()
+        {
+            instance = null;
+        }
 
         // GUI描画イベント.
         public void OnGUI()
@@ -354,6 +360,7 @@ namespace Griphone.Sagittarius
             EditWindow.Instance.SelectedSceneIndex = selectedSceneIndex;
             EditWindow.Instance.SelectedRectIndex = windowId;
             EditWindow.Instance.IsPreviewMode = false;
+            EditWindow.Instance.Initialize();
         }
 
         // プレビューボタンを押した時の挙動.
@@ -363,6 +370,7 @@ namespace Griphone.Sagittarius
             EditWindow.Instance.SelectedSceneIndex = selectedSceneIndex;
             EditWindow.Instance.SelectedRectIndex = windowId;
             EditWindow.Instance.IsPreviewMode = true;
+            EditWindow.Instance.Initialize();
         }
 
         // 削除ボタンを押した時の挙動.

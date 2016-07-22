@@ -72,7 +72,12 @@ public class DraggableWindow : EditorWindow
         return drag;
     }
 
-    void AAA(Rectangle rect, Pivot pivot, float scale, float zoom, Vector2 focus, Vector2 mousePos)
+    public void ClearDrag()
+    {
+        dragObjects.Clear();
+    }
+
+    void CheckRect(Rectangle rect, Pivot pivot, float scale, float zoom, Vector2 focus, Vector2 mousePos)
     {
         var x = (position.width / 2 - rect.width / 2 * zoom) + (rect.x + focus.x) * zoom;
         var y = (position.height / 2 - rect.height / 2 * zoom) + (rect.y + focus.y) * zoom;
@@ -92,12 +97,6 @@ public class DraggableWindow : EditorWindow
                    mousePos.x < x + rect.width*zoom*Mathf.Abs(scale) &&
                    mousePos.y > y &&
                    mousePos.y < y + rect.height*zoom*Mathf.Abs(scale);
-            /*
-                var x = (position.width / 2 - CurrentRect.rect.width / 2 * EditorZoomAmount) + (CurrentRect.rect.x + EditorPosX) * EditorZoomAmount;
-                var y = (position.height / 2 - CurrentRect.rect.width / 2 * EditorZoomAmount) + (CurrentRect.rect.y + EditorPosY) * EditorZoomAmount;
-                var w = info.Texture.width * CurrentRect.scale.x * EditorZoomAmount;
-                var h = info.Texture.height * CurrentRect.scale.y * EditorZoomAmount;
-             */
         }
         return mousePos.x > rect.x*zoom &&
                mousePos.x < rect.x + rect.width*zoom*scale &&
@@ -121,7 +120,7 @@ public class DraggableWindow : EditorWindow
         foreach (var o in dragObjects.OrderBy(_ => _.priority))
         {
             if (o.pivot == Pivot.TopLeft) continue;
-            AAA(o.rect, o.pivot, o.scaleFunc(), o.zoomFunc(), o.focusFunc(), e.mousePosition);
+            CheckRect(o.rect, o.pivot, o.scaleFunc(), o.zoomFunc(), o.focusFunc(), e.mousePosition);
         }
         if (e == null) return;
 
@@ -145,7 +144,7 @@ public class DraggableWindow : EditorWindow
         {
             if (DragObject.Current != null)
             {
-                Debug.Log(DragObject.Current.data);
+                //Debug.Log(DragObject.Current.data);
                 DragObject.Current.onDrag(e.mousePosition, DragObject.Current);
             }
         }
@@ -153,7 +152,7 @@ public class DraggableWindow : EditorWindow
         {
             if (DragObject.Current != null)
             {
-                Debug.Log(DragObject.Current.data);
+                //Debug.Log(DragObject.Current.data);
                 DragObject.Current.onDragEnd(e.mousePosition, DragObject.Current);
                 DragObject.Current.dragOffset = Vector2.zero;
             }

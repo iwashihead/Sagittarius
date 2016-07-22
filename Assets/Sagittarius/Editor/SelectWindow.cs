@@ -32,7 +32,7 @@ namespace Griphone.Sagittarius
         [MenuItem("Window/Sagittarius/Open")]
         public static void Open()
         {
-            GetWindow<SelectWindow>("Sagittarius");
+            GetWindow<SelectWindow>("Sagittarius.Select");
         }
 
         // GUI描画イベント.

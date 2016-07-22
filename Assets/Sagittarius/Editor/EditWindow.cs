@@ -1,10 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Debug = UnityEngine.Debug;
 
 namespace Griphone.Sagittarius
@@ -195,6 +193,9 @@ namespace Griphone.Sagittarius
                 CurrentRect.rect.height = SelectedTextures[0].height;
             }
 
+            // Drag情報クリア
+            ClearDrag();
+
             // ベース領域
             baseRect = new Rectangle(-10000, -10000, 100000, 100000);
             RegisterDrag(1, baseRect, Pivot.TopLeft, null, null, null, "Base",
@@ -283,11 +284,14 @@ namespace Griphone.Sagittarius
             GUI.enabled = !IsPreviewMode;
             
             DrawOutlineFrame();
+            DrawBgTexture();
             DrawTargetRect();
             DrawUnitImage();
+            DrawOverlayFrame();
             DrawOneThirdLine();
             DrawCenterGuide();
             DrawMenu();
+            DrawTextureMenu();
             DrawDebug();
 
             GUI.enabled = true;
@@ -395,6 +399,20 @@ namespace Griphone.Sagittarius
             EditorGUILayout.EndHorizontal();
         }
 
+        private void DrawTextureMenu()
+        {
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
+            {
+                var texNames = setting.BgTextureList.ConvertAll(_ => _ == null ? " " : _.name);
+                CurrentRect.selectedBgTexIndex = EditorGUILayout.Popup(CurrentRect.selectedBgTexIndex, texNames.ToArray(), GUILayout.MaxWidth(200));
+            }
+            {
+                var texNames = setting.FrameTexList.ConvertAll(_ => _ == null ? " " : _.name);
+                CurrentRect.selectedFrameTexIndex = EditorGUILayout.Popup(CurrentRect.selectedFrameTexIndex, texNames.ToArray(), GUILayout.MaxWidth(200));
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
         [Conditional("DEBUG")]
         private void DrawDebug()
         {
@@ -444,9 +462,6 @@ namespace Griphone.Sagittarius
         {
             if (EditorUtility.DisplayDialog("確認", "編集データを保存します\nよろしいですか？", "OK", "Cancel"))
             {
-//                var index = UnitDisplayData.Instance.UnitList.IndexOf(Current);
-//                UnitDisplayData.Instance.UnitList[index].sceneList[SelectedSceneIndex].rectData[SelectedRectIndex] = CurrentRect;
-
                 AssetDatabase.SaveAssets();
             }
         }
@@ -463,16 +478,33 @@ namespace Griphone.Sagittarius
             GUI.DrawTexture(new Rect(x, y, w, h), FrameTex);
         }
 
+        // 背景テクスチャの表示
+        private void DrawBgTexture()
+        {
+            if (setting.BgTextureList.Count > CurrentRect.selectedBgTexIndex)
+            {
+                var tex = setting.BgTextureList[CurrentRect.selectedBgTexIndex];
+                if (tex != null)
+                {
+                    var x = position.width/2 - (tex.width/2 - EditorPosX)*EditorZoomAmount;
+                    var y = position.height/2 - (tex.height/2 - EditorPosY)*EditorZoomAmount;
+                    var w = tex.width*EditorZoomAmount;
+                    var h = tex.height*EditorZoomAmount;
+                    GUI.DrawTexture(new Rect(x, y, w, h), tex);
+                }
+            }
+        }
+
         // 選択中シーンの領域サイズを描画
         private void DrawTargetRect()
         {
             var drawScene = setting.SceneList[SelectedSceneIndex];
             if (drawScene != null)
             {
-                var x = position.width/2 - (drawScene.width/2 - EditorPosX) * EditorZoomAmount;
-                var y = position.height/2 - (drawScene.height/2 - EditorPosY) * EditorZoomAmount;
-                var w = drawScene.width*EditorZoomAmount;
-                var h = drawScene.height*EditorZoomAmount;
+                var x = position.width / 2 - (drawScene.width / 2 - EditorPosX) * EditorZoomAmount;
+                var y = position.height / 2 - (drawScene.height / 2 - EditorPosY) * EditorZoomAmount;
+                var w = drawScene.width * EditorZoomAmount;
+                var h = drawScene.height * EditorZoomAmount;
                 GUI.DrawTexture(new Rect(x, y, w, h), TargetAreaTex);
             }
         }
@@ -493,6 +525,23 @@ namespace Griphone.Sagittarius
                 //Debug.Log("DrawTexture : " + new Rect(x, y, w, h) + " scale : " + CurrentRect.scale + " zoom : " + EditorZoomAmount);
 
                 GUI.DrawTexture(new Rect(x, y, w, h), info.Texture);
+            }
+        }
+
+        // オーバーレイフレームの表示
+        private void DrawOverlayFrame()
+        {
+            if (setting.FrameTexList.Count > CurrentRect.selectedFrameTexIndex)
+            {
+                var tex = setting.FrameTexList[CurrentRect.selectedFrameTexIndex];
+                if (tex != null)
+                {
+                    var x = position.width/2 - (tex.width/2 - EditorPosX)*EditorZoomAmount;
+                    var y = position.height/2 - (tex.height/2 - EditorPosY)*EditorZoomAmount;
+                    var w = tex.width*EditorZoomAmount;
+                    var h = tex.height*EditorZoomAmount;
+                    GUI.DrawTexture(new Rect(x, y, w, h), tex);
+                }
             }
         }
 

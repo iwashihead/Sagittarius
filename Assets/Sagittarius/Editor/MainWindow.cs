@@ -10,7 +10,7 @@ namespace Griphone.Sagittarius
         private static MainWindow instance;
         public static MainWindow Instance
         {
-            get { return instance ?? (instance = GetWindow<MainWindow>()); }
+            get { return instance ?? (instance = GetWindow<MainWindow>("Sagittarius.Data")); }
         }
 
         /// <summary>

@@ -47,11 +47,23 @@ namespace Griphone.Sagittarius
         /// </summary>
         public List<DrawScene> SceneList;
 
+        /// <summary>
+        /// 背景テクスチャリスト.
+        /// </summary>
+        public List<Texture2D> BgTextureList; 
+
+        /// <summary>
+        /// フレームのテクスチャリスト.
+        /// </summary>
+        public List<Texture2D> FrameTexList; 
+
         public Settings()
         {
             SizeList = new List<string>();
             ElementList = new List<Element>();
             SceneList = new List<DrawScene>();
+            BgTextureList = new List<Texture2D>();
+            FrameTexList = new List<Texture2D>();
         }
     }
 }

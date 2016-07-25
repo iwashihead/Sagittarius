@@ -72,16 +72,18 @@ public class DraggableWindow : EditorWindow
         return drag;
     }
 
+    // ドラッグオブジェクトのクリア
     public void ClearDrag()
     {
         dragObjects.Clear();
     }
 
+    // ドラッグ位置の確認用メソッド.
     void CheckRect(Rectangle rect, Pivot pivot, float scale, float zoom, Vector2 focus, Vector2 mousePos)
     {
-        var x = (position.width / 2 - rect.width / 2 * zoom) + (rect.x + focus.x) * zoom;
-        var y = (position.height / 2 - rect.height / 2 * zoom) + (rect.y + focus.y) * zoom;
-        GUI.Box(new Rect(x, y, rect.width*zoom*scale, rect.height*zoom*scale), "");
+        //var x = (position.width / 2 - rect.width / 2 * zoom) + (rect.x + focus.x) * zoom;
+        //var y = (position.height / 2 - rect.height / 2 * zoom) + (rect.y + focus.y) * zoom;
+        //GUI.Box(new Rect(x, y, rect.width*zoom*scale, rect.height*zoom*scale), "");
     }
 
     // 指定のRect上にマウスカーソルが位置しているかどうか.

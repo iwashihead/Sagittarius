@@ -2,6 +2,11 @@
 
 namespace Griphone.Sagittarius
 {
+    /// <summary>
+    /// 汎用的なKeyValueテンプレートクラス
+    /// </summary>
+    /// <typeparam name="TKey">キー</typeparam>
+    /// <typeparam name="TValue">バリュー</typeparam>
     [Serializable]
     public class Pair<TKey, TValue>
     {

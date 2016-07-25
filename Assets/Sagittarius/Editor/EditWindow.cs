@@ -198,11 +198,11 @@ namespace Griphone.Sagittarius
 
             // ベース領域
             baseRect = new Rectangle(-10000, -10000, 100000, 100000);
-            RegisterDrag(1, baseRect, Pivot.TopLeft, null, null, null, "Base",
+            RegisterDrag(10, baseRect, Pivot.TopLeft, null, null, null, "Base",
                 OnBaseDragStart, OnBaseDrag, OnBaseDragEnd);
 
             // ユニットのテクスチャ
-            unitDrag = RegisterDrag(0, CurrentRect.rect, Pivot.Center,
+            unitDrag = RegisterDrag(9, CurrentRect.rect, Pivot.Center,
                 () => Mathf.Abs(CurrentRect.scale.x),
                 () => EditorZoomAmount,
                 () => new Vector2(EditorPosX, EditorPosY),
@@ -261,22 +261,21 @@ namespace Griphone.Sagittarius
         void OnLeftTopDrag(Vector2 mousePos, DragObject o) { }
         void OnLeftTopDragEnd(Vector2 mousePos, DragObject o) { }
 
-
+        // TODO
         void OnRightTopDragStart(Vector2 mousePos, DragObject o) { }
         void OnRightTopDrag(Vector2 mousePos, DragObject o) { }
         void OnRightTopDragEnd(Vector2 mousePos, DragObject o) { }
 
-
+        // TODO
         void OnRightBottomDragStart(Vector2 mousePos, DragObject o) { }
         void OnRightBottomDrag(Vector2 mousePos, DragObject o) { }
         void OnRightBottomDragEnd(Vector2 mousePos, DragObject o) { }
 
-
+        // TODO
         void OnLeftBottomDragStart(Vector2 mousePos, DragObject o) { }
         void OnLeftBottomDrag(Vector2 mousePos, DragObject o) { }
         void OnLeftBottomDragEnd(Vector2 mousePos, DragObject o) { }
         #endregion
-
 
         // GUI描画イベント.
         protected override void OnGUI()
@@ -545,16 +544,52 @@ namespace Griphone.Sagittarius
             }
         }
 
+        // 1/3ラインの表示
         private void DrawOneThirdLine()
         {
-            if (!EnableOneThirdLine) return;
-            // TODO
+            var drawScene = setting.SceneList[SelectedSceneIndex];
+            if (!EnableOneThirdLine || drawScene == null) return;
+            
+            var lineColor = new Color(0f, 0f, 1f, 0.5f);
+            var centerX = position.width/2 - (drawScene.width/2 - EditorPosX)*EditorZoomAmount;
+            var centerY = position.height/2 - (drawScene.height/2 - EditorPosY)*EditorZoomAmount;
+
+            // 縦1/3
+            var p1 = new Vector2(centerX + drawScene.width*0.3333f*EditorZoomAmount, 0);
+            var p2 = new Vector2(centerX + drawScene.width*0.3333f*EditorZoomAmount, position.height);
+            Drawing.DrawLine(p1, p2, lineColor, 1, false);
+            // 縦2/3
+            p1 = new Vector2(centerX + drawScene.width * 0.6667f * EditorZoomAmount, 0);
+            p2 = new Vector2(centerX + drawScene.width * 0.6667f * EditorZoomAmount, position.height);
+            Drawing.DrawLine(p1, p2, lineColor, 1, false);
+            // 横1/3
+            p1 = new Vector2(-position.width, centerY + drawScene.height * 0.3333f * EditorZoomAmount);
+            p2 = new Vector2(position.width, centerY + drawScene.height * 0.3333f * EditorZoomAmount);
+            Drawing.DrawLine(p1, p2, lineColor, 1, false);
+            // 横2/3
+            p1 = new Vector2(-position.width, centerY + drawScene.height * 0.6667f * EditorZoomAmount);
+            p2 = new Vector2(position.width, centerY + drawScene.height * 0.6667f * EditorZoomAmount);
+            Drawing.DrawLine(p1, p2, lineColor, 1, false);
         }
 
+        // 1/2ラインの表示
         private void DrawCenterGuide()
         {
-            if (!EnableCenterGuide) return;
-            // TODO
+            var drawScene = setting.SceneList[SelectedSceneIndex];
+            if (!EnableCenterGuide || drawScene == null) return;
+
+            var lineColor = new Color(1f, 0f, 0f, 0.5f);
+            var centerX = position.width / 2 - (drawScene.width / 2 - EditorPosX) * EditorZoomAmount;
+            var centerY = position.height / 2 - (drawScene.height / 2 - EditorPosY) * EditorZoomAmount;
+
+            // 縦1/2
+            var p1 = new Vector2(centerX + drawScene.width * 0.5f * EditorZoomAmount, 0);
+            var p2 = new Vector2(centerX + drawScene.width * 0.5f * EditorZoomAmount, position.height);
+            Drawing.DrawLine(p1, p2, lineColor, 1, false);
+            // 横1/2
+            p1 = new Vector2(-position.width, centerY + drawScene.height * 0.5f * EditorZoomAmount);
+            p2 = new Vector2(position.width, centerY + drawScene.height * 0.5f * EditorZoomAmount);
+            Drawing.DrawLine(p1, p2, lineColor, 1, false);
         }
     }
 }

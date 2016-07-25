@@ -153,7 +153,6 @@ namespace Griphone.Sagittarius
 
         private bool pressCtrl;
         private bool[] pressState = new bool[Enum.GetValues(typeof (KeyCode)).Length];
-        private bool isDraggingUnitTex;
         private float? wheelAmount = null;
         private Rectangle baseRect;
         private Rectangle leftTopRect;
@@ -162,13 +161,12 @@ namespace Griphone.Sagittarius
         private Rectangle leftBottomRect;
         private Vector2 editorDragStartPos;
         private Vector2 editorDragStartMouse;
-        private DragObject unitDrag;
         private Rect prevPosition;
 
         #endregion
 
         // ウインドウを開くメニューコマンド.
-        [MenuItem("Window/Sagittarius/EditWindow Open")]
+        //[MenuItem("Window/Sagittarius/EditWindow Open")]
         public static void Open()
         {
             instance = Instance;
@@ -189,8 +187,8 @@ namespace Griphone.Sagittarius
             }
             if (SelectedTextures != null && SelectedTextures.Count > 0)
             {
-                CurrentRect.rect.width = SelectedTextures[0].width;
-                CurrentRect.rect.height = SelectedTextures[0].height;
+                CurrentRect.rect.width = SelectedTextures[0] == null ? setting.SceneList[SelectedSceneIndex].width : SelectedTextures[0].width;
+                CurrentRect.rect.height = SelectedTextures[0] == null ? setting.SceneList[SelectedSceneIndex].height : SelectedTextures[0].height;
             }
 
             // Drag情報クリア
@@ -202,7 +200,7 @@ namespace Griphone.Sagittarius
                 OnBaseDragStart, OnBaseDrag, OnBaseDragEnd);
 
             // ユニットのテクスチャ
-            unitDrag = RegisterDrag(9, CurrentRect.rect, Pivot.Center,
+            RegisterDrag(9, CurrentRect.rect, Pivot.Center,
                 () => Mathf.Abs(CurrentRect.scale.x),
                 () => EditorZoomAmount,
                 () => new Vector2(EditorPosX, EditorPosY),
@@ -238,7 +236,6 @@ namespace Griphone.Sagittarius
 
         void OnUnitDragStart(Vector2 mousePos, DragObject o)
         {
-            isDraggingUnitTex = true;
         }
 
         void OnUnitDrag(Vector2 mousePos, DragObject o)
@@ -249,7 +246,6 @@ namespace Griphone.Sagittarius
 
         void OnUnitDragEnd(Vector2 mousePos, DragObject o)
         {
-            isDraggingUnitTex = false;
             CurrentRect.rect.position = mousePos + DragObject.Current.dragOffset;
             Repaint();
         }
@@ -511,12 +507,12 @@ namespace Griphone.Sagittarius
         // ユニットイラストを表示
         private void DrawUnitImage()
         {
-            var drawScene = setting.SceneList[SelectedSceneIndex];
             var selectedElementIds = Current.sceneList[SelectedSceneIndex].GetSelectedElementIdList(SelectedRectIndex);
             var texs = selectedElementIds.ConvertAll(_ => Current.texList[_]);
 
             foreach (var info in texs)
             {
+                if (info.Texture == null) continue;
                 var x = (position.width / 2 - CurrentRect.rect.width / 2 * EditorZoomAmount) + (CurrentRect.rect.x + EditorPosX) * EditorZoomAmount;
                 var y = (position.height / 2 - CurrentRect.rect.height / 2 * EditorZoomAmount) + (CurrentRect.rect.y + EditorPosY) * EditorZoomAmount;
                 var w = info.Texture.width * CurrentRect.scale.x * EditorZoomAmount;

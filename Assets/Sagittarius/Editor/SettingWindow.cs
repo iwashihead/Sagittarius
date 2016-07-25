@@ -8,7 +8,7 @@ namespace Griphone.Sagittarius
     {
         private Settings setting { get { return Settings.Instance; } }
 
-        [MenuItem("Window/Sagittarius/Settings Open")]
+        //[MenuItem("Window/Sagittarius/Settings Open")]
         public static void Open()
         {
             GetWindow<SettingWindow>("Sagittarius Settings");
@@ -20,7 +20,7 @@ namespace Griphone.Sagittarius
 
             setting.IdRuleRegex = EditorGUILayout.TextField("IDのルール(正規表現)", setting.IdRuleRegex);
 
-            // TODO 思ったけど、ScriptableObject側のInspector拡張でもいいから後回し
+            // TODO ScriptableObject側のInspector拡張でもいいから後回し
         }
 
 

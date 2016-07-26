@@ -117,6 +117,11 @@ namespace Griphone.Sagittarius
             }
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
+            if (GUILayout.Button("保存", GUILayout.Height(25), GUILayout.MaxWidth(100)))
+            {
+                AssetDatabase.SaveAssets();
+                ShowNotification(new GUIContent("保存が完了しました"));
+            }
             if (GUILayout.Button("読み込み", GUILayout.Height(25), GUILayout.MaxWidth(100)))
             {
                 OnClickLoadTexture();
@@ -290,7 +295,7 @@ namespace Griphone.Sagittarius
                 if (scene.dataIndex[i] < 0) continue;
                 var elementRect = new Rect(0, ElementStartY + ElementHeight * i, 100, 50);
                 var window = windowList[scene.dataIndex[i]];
-                Drawing.CurveFronTo(elementRect, window.rect, setting.ElementList[i].color, new Color(0.2f, 0.2f, 0.2f, 1f));
+                Drawing.CurveFromTo(elementRect, window.rect, setting.ElementList[i].color, new Color(0.2f, 0.2f, 0.2f, 1f));
             }
 
             // Nodeウインドウの表示.

@@ -278,11 +278,11 @@ namespace Griphone.Sagittarius
         {
             GUI.enabled = !IsPreviewMode;
             
-            DrawOutlineFrame();
             DrawBgTexture();
             DrawTargetRect();
             DrawUnitImage();
             DrawOverlayFrame();
+            DrawOutlineFrame();
             DrawOneThirdLine();
             DrawCenterGuide();
             DrawMenu();
@@ -338,8 +338,8 @@ namespace Griphone.Sagittarius
                     var diffW = afterW - prevW;
                     var diffH = afterH - prevH;
 
-                    CurrentRect.rect.x -= diffW/2;
-                    CurrentRect.rect.y -= diffH/2;
+                    CurrentRect.rect.x -= diffW/2f;
+                    CurrentRect.rect.y -= diffH/2f;
                 }
 
                 if (pressState[(int) KeyCode.Plus] || pressState[(int) KeyCode.KeypadPlus])
@@ -458,6 +458,7 @@ namespace Griphone.Sagittarius
             if (EditorUtility.DisplayDialog("確認", "編集データを保存します\nよろしいですか？", "OK", "Cancel"))
             {
                 AssetDatabase.SaveAssets();
+                ShowNotification(new GUIContent("保存が完了しました"));
             }
         }
         #endregion
@@ -465,12 +466,19 @@ namespace Griphone.Sagittarius
         // 外枠の表示
         private void DrawOutlineFrame()
         {
-            if (!EnableOutlineFrame) return;
+            var drawScene = setting.SceneList[SelectedSceneIndex];
+            if (!EnableOutlineFrame || drawScene == null) return;
+
             var x = 0;
             var y = 0;
             var w = position.width;
             var h = position.height;
-            GUI.DrawTexture(new Rect(x, y, w, h), FrameTex);
+            //GUI.DrawTexture(new Rect(x, y, w, h), FrameTex);
+
+            GUI.DrawTexture(new Rect(0, 0, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
+            GUI.DrawTexture(new Rect(w / 2f + drawScene.width / 2f * EditorZoomAmount, 0, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
+            GUI.DrawTexture(new Rect(w / 2f - drawScene.width / 2f * EditorZoomAmount, 0, drawScene.width * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f), FrameTex);
+            GUI.DrawTexture(new Rect(w / 2f - drawScene.width / 2f * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f + drawScene.height * EditorZoomAmount, drawScene.width * EditorZoomAmount, h - drawScene.height), FrameTex);
         }
 
         // 背景テクスチャの表示
@@ -481,8 +489,8 @@ namespace Griphone.Sagittarius
                 var tex = setting.BgTextureList[CurrentRect.selectedBgTexIndex];
                 if (tex != null)
                 {
-                    var x = position.width/2 - (tex.width/2 - EditorPosX)*EditorZoomAmount;
-                    var y = position.height/2 - (tex.height/2 - EditorPosY)*EditorZoomAmount;
+                    var x = position.width/2f - (tex.width/2f - EditorPosX)*EditorZoomAmount;
+                    var y = position.height/2f - (tex.height/2f - EditorPosY)*EditorZoomAmount;
                     var w = tex.width*EditorZoomAmount;
                     var h = tex.height*EditorZoomAmount;
                     GUI.DrawTexture(new Rect(x, y, w, h), tex);
@@ -496,8 +504,8 @@ namespace Griphone.Sagittarius
             var drawScene = setting.SceneList[SelectedSceneIndex];
             if (drawScene != null)
             {
-                var x = position.width / 2 - (drawScene.width / 2 - EditorPosX) * EditorZoomAmount;
-                var y = position.height / 2 - (drawScene.height / 2 - EditorPosY) * EditorZoomAmount;
+                var x = position.width / 2f - (drawScene.width / 2f - EditorPosX) * EditorZoomAmount;
+                var y = position.height / 2f - (drawScene.height / 2f - EditorPosY) * EditorZoomAmount;
                 var w = drawScene.width * EditorZoomAmount;
                 var h = drawScene.height * EditorZoomAmount;
                 GUI.DrawTexture(new Rect(x, y, w, h), TargetAreaTex);
@@ -513,8 +521,8 @@ namespace Griphone.Sagittarius
             foreach (var info in texs)
             {
                 if (info.Texture == null) continue;
-                var x = (position.width / 2 - CurrentRect.rect.width / 2 * EditorZoomAmount) + (CurrentRect.rect.x + EditorPosX) * EditorZoomAmount;
-                var y = (position.height / 2 - CurrentRect.rect.height / 2 * EditorZoomAmount) + (CurrentRect.rect.y + EditorPosY) * EditorZoomAmount;
+                var x = (position.width / 2f - CurrentRect.rect.width / 2f * EditorZoomAmount) + (CurrentRect.rect.x + EditorPosX) * EditorZoomAmount;
+                var y = (position.height / 2f - CurrentRect.rect.height / 2f * EditorZoomAmount) + (CurrentRect.rect.y + EditorPosY) * EditorZoomAmount;
                 var w = info.Texture.width * CurrentRect.scale.x * EditorZoomAmount;
                 var h = info.Texture.height * CurrentRect.scale.y * EditorZoomAmount;
                 //Debug.Log("DrawTexture : " + new Rect(x, y, w, h) + " scale : " + CurrentRect.scale + " zoom : " + EditorZoomAmount);
@@ -531,8 +539,8 @@ namespace Griphone.Sagittarius
                 var tex = setting.FrameTexList[CurrentRect.selectedFrameTexIndex];
                 if (tex != null)
                 {
-                    var x = position.width/2 - (tex.width/2 - EditorPosX)*EditorZoomAmount;
-                    var y = position.height/2 - (tex.height/2 - EditorPosY)*EditorZoomAmount;
+                    var x = position.width/2f - (tex.width/2f - EditorPosX)*EditorZoomAmount;
+                    var y = position.height/2f - (tex.height/2f - EditorPosY)*EditorZoomAmount;
                     var w = tex.width*EditorZoomAmount;
                     var h = tex.height*EditorZoomAmount;
                     GUI.DrawTexture(new Rect(x, y, w, h), tex);
@@ -547,8 +555,8 @@ namespace Griphone.Sagittarius
             if (!EnableOneThirdLine || drawScene == null) return;
             
             var lineColor = new Color(0f, 0f, 1f, 0.5f);
-            var centerX = position.width/2 - (drawScene.width/2 - EditorPosX)*EditorZoomAmount;
-            var centerY = position.height/2 - (drawScene.height/2 - EditorPosY)*EditorZoomAmount;
+            var centerX = position.width/2f - (drawScene.width/2f - EditorPosX)*EditorZoomAmount;
+            var centerY = position.height/2f - (drawScene.height/2f - EditorPosY)*EditorZoomAmount;
 
             // 縦1/3
             var p1 = new Vector2(centerX + drawScene.width*0.3333f*EditorZoomAmount, 0);
@@ -575,8 +583,8 @@ namespace Griphone.Sagittarius
             if (!EnableCenterGuide || drawScene == null) return;
 
             var lineColor = new Color(1f, 0f, 0f, 0.5f);
-            var centerX = position.width / 2 - (drawScene.width / 2 - EditorPosX) * EditorZoomAmount;
-            var centerY = position.height / 2 - (drawScene.height / 2 - EditorPosY) * EditorZoomAmount;
+            var centerX = position.width / 2f - (drawScene.width / 2f - EditorPosX) * EditorZoomAmount;
+            var centerY = position.height / 2f - (drawScene.height / 2f - EditorPosY) * EditorZoomAmount;
 
             // 縦1/2
             var p1 = new Vector2(centerX + drawScene.width * 0.5f * EditorZoomAmount, 0);

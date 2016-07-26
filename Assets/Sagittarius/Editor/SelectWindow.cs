@@ -154,6 +154,7 @@ namespace Griphone.Sagittarius
             if (GUILayout.Button("保存"))
             {
                 AssetDatabase.SaveAssets();
+                ShowNotification(new GUIContent("保存が完了しました"));
             }
             EditorGUILayout.EndVertical();
         }

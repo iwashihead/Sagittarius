@@ -67,7 +67,7 @@ namespace Griphone.Sagittarius
             }
         }
 
-        public static void CurveFronTo(Rect wr, Rect wr2, Color color, Color shadow)
+        public static void CurveFromTo(Rect wr, Rect wr2, Color color, Color shadow)
         {
             BezierLine(
                 new Vector2(wr.x + wr.width, wr.y + 1 + wr.height / 2),

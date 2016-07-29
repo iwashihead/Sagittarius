@@ -475,7 +475,7 @@ namespace Griphone.Sagittarius
             var h = position.height;
             //GUI.DrawTexture(new Rect(x, y, w, h), FrameTex);
 
-            GUI.DrawTexture(new Rect(0, 0, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
+            GUI.DrawTexture(new Rect(x, y, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
             GUI.DrawTexture(new Rect(w / 2f + drawScene.width / 2f * EditorZoomAmount, 0, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
             GUI.DrawTexture(new Rect(w / 2f - drawScene.width / 2f * EditorZoomAmount, 0, drawScene.width * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f), FrameTex);
             GUI.DrawTexture(new Rect(w / 2f - drawScene.width / 2f * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f + drawScene.height * EditorZoomAmount, drawScene.width * EditorZoomAmount, h - drawScene.height), FrameTex);

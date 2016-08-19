@@ -317,6 +317,25 @@ namespace Griphone.Sagittarius
             base.OnGuiEvent(e);
         }
 
+        private void SetCurrentScale(float scale)
+        {
+            // ユニットのテクスチャスケールの更新
+            var prevScale = CurrentRect.scale.x;
+            CurrentRect.scale.x = scale;
+            CurrentRect.scale.y = scale;
+
+            // ずれた位置を修正する
+            var prevW = CurrentRect.rect.width * prevScale;
+            var prevH = CurrentRect.rect.height * prevScale;
+            var afterW = CurrentRect.rect.width * scale;
+            var afterH = CurrentRect.rect.height * scale;
+            var diffW = afterW - prevW;
+            var diffH = afterH - prevH;
+
+            CurrentRect.rect.x -= diffW / 2f;
+            CurrentRect.rect.y -= diffH / 2f;
+        }
+
         // 更新.
         private void Update()
         {
@@ -325,21 +344,8 @@ namespace Griphone.Sagittarius
                 if (wheelAmount.HasValue)
                 {
                     // ユニットのテクスチャスケールの更新
-                    var prevScale = CurrentRect.scale.x;
                     var scale = Mathf.Clamp(CurrentRect.scale.x - wheelAmount.Value*0.01f, 0.05f, 5f);
-                    CurrentRect.scale.x = scale;
-                    CurrentRect.scale.y = scale;
-
-                    // ずれた位置を修正する
-                    var prevW = CurrentRect.rect.width*prevScale;
-                    var prevH = CurrentRect.rect.height*prevScale;
-                    var afterW = CurrentRect.rect.width*scale;
-                    var afterH = CurrentRect.rect.height*scale;
-                    var diffW = afterW - prevW;
-                    var diffH = afterH - prevH;
-
-                    CurrentRect.rect.x -= diffW/2f;
-                    CurrentRect.rect.y -= diffH/2f;
+                    SetCurrentScale(scale);
                 }
 
                 if (pressState[(int) KeyCode.Plus] || pressState[(int) KeyCode.KeypadPlus])
@@ -390,6 +396,13 @@ namespace Griphone.Sagittarius
             GUI.backgroundColor = Color.magenta;
             if (GUILayout.Button("確定", GUILayout.MaxWidth(150))) OnClickConfirm();
             GUI.backgroundColor = col;
+            GUI.Label(new Rect(position.width - 300, position.height - 45, 100, 20), "UnitScale");
+            var scale = GUI.HorizontalSlider(new Rect(position.width - 200, position.height - 45, 200, 20), CurrentRect.scale.x, 0.01f, 2f);
+            if (CurrentRect.scale.x != scale)
+            {
+                SetCurrentScale(scale);
+            }
+            GUI.Label(new Rect(position.width - 300, position.height - 20, 100, 20), "Zoom");
             EditorZoomAmount = GUI.HorizontalSlider(new Rect(position.width - 200, position.height - 20, 200, 20), EditorZoomAmount, 0.3f, 5f);
             EditorGUILayout.EndHorizontal();
         }
@@ -469,16 +482,16 @@ namespace Griphone.Sagittarius
             var drawScene = setting.SceneList[SelectedSceneIndex];
             if (!EnableOutlineFrame || drawScene == null) return;
 
-            var x = 0;
-            var y = 0;
+            var x = EditorPosX * EditorZoomAmount;
+            var y = EditorPosY * EditorZoomAmount;
             var w = position.width;
             var h = position.height;
             //GUI.DrawTexture(new Rect(x, y, w, h), FrameTex);
 
             GUI.DrawTexture(new Rect(x, y, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
-            GUI.DrawTexture(new Rect(w / 2f + drawScene.width / 2f * EditorZoomAmount, 0, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
-            GUI.DrawTexture(new Rect(w / 2f - drawScene.width / 2f * EditorZoomAmount, 0, drawScene.width * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f), FrameTex);
-            GUI.DrawTexture(new Rect(w / 2f - drawScene.width / 2f * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f + drawScene.height * EditorZoomAmount, drawScene.width * EditorZoomAmount, h - drawScene.height), FrameTex);
+            GUI.DrawTexture(new Rect(x + w / 2f + drawScene.width / 2f * EditorZoomAmount, y, w / 2f - drawScene.width / 2f * EditorZoomAmount, h), FrameTex);
+            GUI.DrawTexture(new Rect(x + w / 2f - drawScene.width / 2f * EditorZoomAmount, y, drawScene.width * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f), FrameTex);
+            GUI.DrawTexture(new Rect(x + w / 2f - drawScene.width / 2f * EditorZoomAmount, y + (h - drawScene.height * EditorZoomAmount) / 2f + drawScene.height * EditorZoomAmount, drawScene.width * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f), FrameTex);
         }
 
         // 背景テクスチャの表示

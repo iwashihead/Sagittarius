@@ -435,16 +435,7 @@ namespace Griphone.Sagittarius
         // 左右反転ボタンを押した時の挙動.
         private void OnClickFlip()
         {
-            CurrentRect.scale.x *= -1;
-
-            if (CurrentRect.scale.x > 0)
-            {
-                CurrentRect.rect.x -= CurrentRect.rect.width * Mathf.Abs(CurrentRect.scale.x);
-            }
-            else if (CurrentRect.scale.x < 0)
-            {
-                CurrentRect.rect.x += CurrentRect.rect.width * Mathf.Abs(CurrentRect.scale.x);
-            }
+            CurrentRect.IsFlip = !CurrentRect.IsFlip;
         }
 
         // センターガイド切替ボタンを押した時の挙動.
@@ -470,6 +461,8 @@ namespace Griphone.Sagittarius
         {
             if (EditorUtility.DisplayDialog("確認", "編集データを保存します\nよろしいですか？", "OK", "Cancel"))
             {
+                var drawScene = setting.SceneList[SelectedSceneIndex];
+                CurrentRect.ApplyUVRect(drawScene);
                 AssetDatabase.SaveAssets();
                 ShowNotification(new GUIContent("保存が完了しました"));
             }
@@ -531,12 +524,28 @@ namespace Griphone.Sagittarius
             var selectedElementIds = Current.sceneList[SelectedSceneIndex].GetSelectedElementIdList(SelectedRectIndex);
             var texs = selectedElementIds.ConvertAll(_ => Current.texList[_]);
 
+            float scaleX = CurrentRect.scale.x;
+            float rectX = CurrentRect.rect.x;
+
+            if (CurrentRect.IsFlip)
+            {
+                scaleX *= -1;
+                if (scaleX > 0)
+                {
+                    rectX -= CurrentRect.rect.width * Mathf.Abs(scaleX);
+                }
+                else if (scaleX < 0)
+                {
+                    rectX += CurrentRect.rect.width * Mathf.Abs(scaleX);
+                }
+            }
+
             foreach (var info in texs)
             {
                 if (info.Texture == null) continue;
-                var x = (position.width / 2f - CurrentRect.rect.width / 2f * EditorZoomAmount) + (CurrentRect.rect.x + EditorPosX) * EditorZoomAmount;
+                var x = (position.width / 2f - CurrentRect.rect.width / 2f * EditorZoomAmount) + (rectX + EditorPosX) * EditorZoomAmount;
                 var y = (position.height / 2f - CurrentRect.rect.height / 2f * EditorZoomAmount) + (CurrentRect.rect.y + EditorPosY) * EditorZoomAmount;
-                var w = info.Texture.width * CurrentRect.scale.x * EditorZoomAmount;
+                var w = info.Texture.width * scaleX * EditorZoomAmount;
                 var h = info.Texture.height * CurrentRect.scale.y * EditorZoomAmount;
                 //Debug.Log("DrawTexture : " + new Rect(x, y, w, h) + " scale : " + CurrentRect.scale + " zoom : " + EditorZoomAmount);
 

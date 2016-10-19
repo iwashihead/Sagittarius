@@ -1,32 +1,42 @@
-﻿using System;
-using UnityEngine;
-using UnityEditor;
+﻿using UnityEngine;
 
 namespace Griphone.Sagittarius
 {
+    /// <summary>
+    /// Editor用描画クラス
+    /// </summary>
     public class Drawing
     {
-        public static Texture2D aaLineTex = null;//アンチエイリアステクスチャ
-        public static Texture2D lineTex = null;
+        /// <summary>
+        /// アンチエイリアスされた線表示用テクスチャ
+        /// </summary>
+        public static Texture2D AntiAliasLineTex;
+        /// <summary>
+        /// 線表示用テクスチャ
+        /// </summary>
+        public static Texture2D LineTex;
 
+        /// <summary>
+        /// 線の描画
+        /// </summary>
         public static void DrawLine(Vector2 pointA, Vector2 pointB, Color color, float width, bool antiAlias)
         {
             Color savedColor = GUI.color;
             Matrix4x4 savedMatrix = GUI.matrix;
 
-            if (!lineTex)
+            if (!LineTex)
             {
-                lineTex = new Texture2D(1, 1, TextureFormat.ARGB32, true);
-                lineTex.SetPixel(0, 1, Color.white);
-                lineTex.Apply();
+                LineTex = new Texture2D(1, 1, TextureFormat.ARGB32, true);
+                LineTex.SetPixel(0, 1, Color.white);
+                LineTex.Apply();
             }
-            if (!aaLineTex)
+            if (!AntiAliasLineTex)
             {
-                aaLineTex = new Texture2D(1, 3, TextureFormat.ARGB32, true);
-                aaLineTex.SetPixel(0, 0, new Color(1, 1, 1, 0));
-                aaLineTex.SetPixel(0, 1, Color.white);
-                aaLineTex.SetPixel(0, 2, new Color(1, 1, 1, 0));
-                aaLineTex.Apply();
+                AntiAliasLineTex = new Texture2D(1, 3, TextureFormat.ARGB32, true);
+                AntiAliasLineTex.SetPixel(0, 0, new Color(1, 1, 1, 0));
+                AntiAliasLineTex.SetPixel(0, 1, Color.white);
+                AntiAliasLineTex.SetPixel(0, 2, new Color(1, 1, 1, 0));
+                AntiAliasLineTex.Apply();
             }
             if (antiAlias) width *= 3;
             float angle = Vector3.Angle(pointB - pointA, Vector2.right) * (pointA.y <= pointB.y ? 1 : -1);
@@ -43,16 +53,18 @@ namespace Griphone.Sagittarius
                 GUI.matrix = TranslationMatrix(dz + new Vector3(width / 2, -m / 2) * Mathf.Sin(angle * Mathf.Deg2Rad)) * GUI.matrix;
 
                 if (!antiAlias)
-                    GUI.DrawTexture(new Rect(0, 0, 1, 1), lineTex);
+                    GUI.DrawTexture(new Rect(0, 0, 1, 1), LineTex);
                 else
-                    GUI.DrawTexture(new Rect(0, 0, 1, 1), aaLineTex);
+                    GUI.DrawTexture(new Rect(0, 0, 1, 1), AntiAliasLineTex);
             }
             GUI.matrix = savedMatrix;
             GUI.color = savedColor;
         }
 
-        public static void BezierLine(Vector2 start, Vector2 startTangent, Vector2 end, Vector2 endTangent, Color color,
-            float width, bool antiAlias, int segments)
+        /// <summary>
+        /// ベジェ曲線の描画
+        /// </summary>
+        public static void BezierLine(Vector2 start, Vector2 startTangent, Vector2 end, Vector2 endTangent, Color color, float width, bool antiAlias, int segments)
         {
             Vector2 lastV = CubeBezier(start, startTangent, end, endTangent, 0);
             for (int i = 1; i <= segments; ++i)
@@ -67,6 +79,9 @@ namespace Griphone.Sagittarius
             }
         }
 
+        /// <summary>
+        /// 曲線の描画
+        /// </summary>
         public static void CurveFromTo(Rect wr, Rect wr2, Color color, Color shadow)
         {
             BezierLine(

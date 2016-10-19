@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
 
 namespace Griphone.Sagittarius
 {
+    /// <summary>
+    /// 編集をするイラストを選択するウインドウ
+    /// </summary>
     public class SelectWindow : EditorWindow
     {
         #region Static
@@ -23,22 +25,29 @@ namespace Griphone.Sagittarius
 
         private Vector2 scrollPos;
         private int selectedIndex;
-        private UnitDisplayData dataList { get { return UnitDisplayData.Instance; } }
+        private UnitDisplayData dataList
+        {
+            get { return UnitDisplayData.Instance; }
+        }
         private UnitData addData;
 
         #endregion
 
-        // ウインドウを開くメニューコマンド.
+        #region Public Method
+        /// <summary>
+        /// ウインドウを開くメニューコマンド
+        /// </summary>
         [MenuItem("Window/Sagittarius/Open")]
         public static void Open()
         {
             GetWindow<SelectWindow>("Sagittarius.Select");
         }
 
-        // GUI描画イベント.
+        /// <summary>
+        /// GUI描画イベント
+        /// </summary>
         public void OnGUI()
         {
-            Initialize();
             DrawAddItemView();
             scrollPos = EditorGUILayout.BeginScrollView(scrollPos, false, true);
             DrawItemList();
@@ -46,12 +55,12 @@ namespace Griphone.Sagittarius
             EditorGUILayout.EndScrollView();
         }
 
-        // 初期化を実行します.
-        private void Initialize()
-        {
-        }
+        #endregion
 
-        // 要素の追加を表示します.
+        #region Private Method
+        /// <summary>
+        /// 要素の追加を表示します
+        /// </summary>
         private void DrawAddItemView()
         {
             if (addData == null)
@@ -96,7 +105,9 @@ namespace Griphone.Sagittarius
             EditorGUILayout.EndVertical();
         }
 
-        // 要素一覧を表示します.
+        /// <summary>
+        /// 要素一覧を表示します
+        /// </summary>
         private void DrawItemList()
         {
             EditorGUILayout.Space();
@@ -113,7 +124,8 @@ namespace Griphone.Sagittarius
 
                 EditorGUILayout.BeginHorizontal();
 
-                {// 選択ボタン ユニットIDと名前を表示.
+                {
+                    // 選択ボタン ユニットIDと名前を表示.
                     var title = string.Format("{0} {1}", data.id, data.name);
                     var col = GUI.backgroundColor;
                     GUI.backgroundColor = selectedIndex == i ? Color.cyan : col;
@@ -130,7 +142,8 @@ namespace Griphone.Sagittarius
                     OnClickLock(i, data);
                 }
 
-                {// 削除ボタン.
+                {
+                    // 削除ボタン.
                     GUI.enabled = !data.isLock;
                     var col = GUI.backgroundColor;
                     GUI.backgroundColor = Color.red;
@@ -148,6 +161,9 @@ namespace Griphone.Sagittarius
             EditorGUILayout.EndVertical();
         }
 
+        /// <summary>
+        /// セーブボタンを表示します
+        /// </summary>
         private void DrawSaveButton()
         {
             EditorGUILayout.BeginVertical(GUI.skin.box);
@@ -159,7 +175,9 @@ namespace Griphone.Sagittarius
             EditorGUILayout.EndVertical();
         }
 
-        // ユニット1件のボタンを押して選択した時の挙動.
+        /// <summary>
+        /// ユニット1件のボタンを押して選択した時の挙動.
+        /// </summary>
         private void OnClickSelect(int index, UnitData data)
         {
             selectedIndex = index;
@@ -170,7 +188,9 @@ namespace Griphone.Sagittarius
             }
         }
 
-        // ユニット1件のロックボタンを押した時の挙動.
+        /// <summary>
+        /// ユニット1件のロックボタンを押した時の挙動.
+        /// </summary>
         private void OnClickLock(int index, UnitData data)
         {
             data.isLock = !data.isLock;
@@ -181,7 +201,9 @@ namespace Griphone.Sagittarius
             }
         }
 
-        // ユニット1件を削除した時の挙動.
+        /// <summary>
+        /// ユニット1件を削除した時の挙動.
+        /// </summary>
         private void OnClickDelete(int index, UnitData data)
         {
             var result = EditorUtility.DisplayDialog(
@@ -200,5 +222,7 @@ namespace Griphone.Sagittarius
                 }
             }
         }
+
+        #endregion
     }
 }

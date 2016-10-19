@@ -8,6 +8,10 @@ using UnityEditor;
 
 namespace Griphone.Sagittarius
 {
+    /// <summary>
+    /// サジタリウスの設定データ.
+    /// Project毎に設定をしてください.
+    /// </summary>
     [Serializable]
     [CreateAssetMenu(fileName = "Sagittarius", menuName = "Sagittarius/Settings", order = 0)]
     public class Settings : ScriptableObject

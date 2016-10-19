@@ -12,11 +12,17 @@ namespace Griphone.Sagittarius
     /// </summary>
     public class EditWindow : DraggableWindow
     {
-        private const string FrameTexPath = "Assets/Sagittarius/Textures/black_8x8.png";
-        private const string TargetAreaTexPath = "Assets/Sagittarius/Textures/targetArea.png";
-        private const int spSize = 20;// scale point size.
-
         #region Static
+        /// <summary>
+        /// フレーム画像用パス
+        /// </summary>
+        private const string FrameTexPath = "Assets/Sagittarius/Textures/black_8x8.png";
+
+        /// <summary>
+        /// ターゲット領域画像用パス
+        /// </summary>
+        private const string TargetAreaTexPath = "Assets/Sagittarius/Textures/targetArea.png";
+
         private static EditWindow instance;
         public static EditWindow Instance
         {
@@ -53,20 +59,33 @@ namespace Griphone.Sagittarius
         #endregion
 
         #region Public Declaration
-        // 編集対象のデータ.
-        // このデータはMainWindowからセットされます
+        /// <summary>
+        /// 編集対象のデータ
+        /// このデータはMainWindowからセットされます
+        /// </summary>
         public UnitData Current { get; set; }
-        // 対象シーン.
-        // このデータはMainWindowからセットされます
+
+        /// <summary>
+        /// 対象シーン.
+        /// このデータはMainWindowからセットされます
+        /// </summary>
         public int SelectedSceneIndex { get; set; }
-        // 対象データIndex.
-        // このデータはMainWindowからセットされます
+
+        /// <summary>
+        /// 対象データIndex.
+        /// このデータはMainWindowからセットされます
+        /// </summary>
         public int SelectedRectIndex { get; set; }
-        // プレビューモードかどうか.
-        // このデータはMainWindowからセットされます
+
+        /// <summary>
+        /// プレビューモードかどうか.
+        /// このデータはMainWindowからセットされます
+        /// </summary>
         public bool IsPreviewMode { get; set; }
 
-        // 編集中の領域データ.
+        /// <summary>
+        /// 編集中の領域データ
+        /// </summary>
         public RectData CurrentRect
         {
             get
@@ -77,12 +96,15 @@ namespace Griphone.Sagittarius
                 }
                 catch
                 {
-                    Debug.LogWarning(string.Format("current:{2} sceneIndex:{0} rectIndex:{1}", SelectedSceneIndex, SelectedRectIndex, Current==null ? "null" : "exist"));
+                    Debug.LogWarning(string.Format("current:{2} sceneIndex:{0} rectIndex:{1}", SelectedSceneIndex, SelectedRectIndex, Current == null ? "null" : "exist"));
                 }
                 return null;
             }
         }
-        // 選択中のテクスチャ.
+
+        /// <summary>
+        /// 選択中のテクスチャ
+        /// </summary>
         public List<Texture2D> SelectedTextures
         {
             get
@@ -100,25 +122,36 @@ namespace Griphone.Sagittarius
         }
 
         #region EditorPrefs
-        // センターガイドライン表示フラグ
+        /// <summary>
+        /// センターガイドライン表示フラグ
+        /// </summary>
         public bool EnableCenterGuide
         {
             get { return EditorPrefs.GetBool("EnableCenterGuide", true); }
             set { EditorPrefs.SetBool("EnableCenterGuide", value); }
         }
-        // 1/3ライン表示フラグ
+
+        /// <summary>
+        /// 1/3ライン表示フラグ
+        /// </summary>
         public bool EnableOneThirdLine
         {
             get { return EditorPrefs.GetBool("EnableOneThirdLine", true); }
             set { EditorPrefs.SetBool("EnableOneThirdLine", value); }
         }
-        // フレーム表示フラグ
+
+        /// <summary>
+        /// フレーム表示フラグ
+        /// </summary>
         public bool EnableOutlineFrame
         {
             get { return EditorPrefs.GetBool("EnableOutlineFrame", true); }
             set { EditorPrefs.SetBool("EnableOutlineFrame", value); }
         }
-        // 画面のズーム量
+
+        /// <summary>
+        /// 画面のズーム量
+        /// </summary>
         public float EditorZoomAmount
         {
             get { return EditorPrefs.GetFloat("EditorZoomAmount", 1f); }
@@ -129,56 +162,57 @@ namespace Griphone.Sagittarius
                 Repaint();
             }
         }
-        // 画面X位置
+
+        /// <summary>
+        /// エディタX位置
+        /// </summary>
         public float EditorPosX
         {
             get { return EditorPrefs.GetFloat("EditorPosX", 0f); }
             set { EditorPrefs.SetFloat("EditorPosX", value); }
         }
-        // 画面Y位置
+
+        /// <summary>
+        /// エディタY位置
+        /// </summary>
         public float EditorPosY
         {
             get { return EditorPrefs.GetFloat("EditorPosY", 0f); }
             set { EditorPrefs.SetFloat("EditorPosY", value); }
         }
         #endregion
+
         #endregion
 
         #region Private Declaration
 
-        private Settings setting
+        private Settings Setting
         {
             get { return Settings.Instance; }
         }
 
-        private bool pressCtrl;
-        private bool[] pressState = new bool[Enum.GetValues(typeof (KeyCode)).Length];
-        private float? wheelAmount = null;
-        private Rectangle baseRect;
-        private Rectangle leftTopRect;
-        private Rectangle rightTopRect;
-        private Rectangle rightBottomRect;
-        private Rectangle leftBottomRect;
-        private Vector2 editorDragStartPos;
-        private Vector2 editorDragStartMouse;
-        private Rect prevPosition;
+        private bool _pressCtrl;
+        private bool[] _pressState = new bool[Enum.GetValues(typeof (KeyCode)).Length];
+        private float? _wheelAmount = null;
+        private Rectangle _baseRect;
+        private Vector2 _editorDragStartPos;
+        private Vector2 _editorDragStartMouse;
+        private Rect _prevPosition;
 
         #endregion
 
-        // ウインドウを開くメニューコマンド.
-        //[MenuItem("Window/Sagittarius/EditWindow Open")]
+        #region Public Method
+        /// <summary>
+        /// ウインドウを開きます
+        /// </summary>
         public static void Open()
         {
             instance = Instance;
         }
 
-        protected virtual void OnDestroy()
-        {
-            if (instance) EditorApplication.update -= instance.Update;
-            instance = null;
-        }
-
-        // 初期化.
+        /// <summary>
+        /// 初期化
+        /// </summary>
         public virtual void Initialize()
         {
             if (CurrentRect.rect == null)
@@ -187,16 +221,16 @@ namespace Griphone.Sagittarius
             }
             if (SelectedTextures != null && SelectedTextures.Count > 0)
             {
-                CurrentRect.rect.width = SelectedTextures[0] == null ? setting.SceneList[SelectedSceneIndex].width : SelectedTextures[0].width;
-                CurrentRect.rect.height = SelectedTextures[0] == null ? setting.SceneList[SelectedSceneIndex].height : SelectedTextures[0].height;
+                CurrentRect.rect.width = SelectedTextures[0] == null ? Setting.SceneList[SelectedSceneIndex].width : SelectedTextures[0].width;
+                CurrentRect.rect.height = SelectedTextures[0] == null ? Setting.SceneList[SelectedSceneIndex].height : SelectedTextures[0].height;
             }
 
             // Drag情報クリア
             ClearDrag();
 
             // ベース領域
-            baseRect = new Rectangle(-10000, -10000, 100000, 100000);
-            RegisterDrag(10, baseRect, Pivot.TopLeft, null, null, null, "Base",
+            _baseRect = new Rectangle(-10000, -10000, 100000, 100000);
+            RegisterDrag(10, _baseRect, Pivot.TopLeft, null, null, null, "Base",
                 OnBaseDragStart, OnBaseDrag, OnBaseDragEnd);
 
             // ユニットのテクスチャ
@@ -207,27 +241,127 @@ namespace Griphone.Sagittarius
                 "UnitTex",
                 OnUnitDragStart, OnUnitDrag, OnUnitDragEnd);
         }
+        #endregion
+
+        #region Private Method
+
+        #region UnityEvent
+        /// <summary>
+        /// 破棄イベント
+        /// </summary>
+        protected virtual void OnDestroy()
+        {
+            if (instance) EditorApplication.update -= instance.Update;
+            instance = null;
+        }
+
+        /// <summary>
+        /// 更新
+        /// </summary>
+        protected virtual void Update()
+        {
+            if (_pressCtrl)
+            {
+                if (_wheelAmount.HasValue)
+                {
+                    // ユニットのテクスチャスケールの更新
+                    var scale = Mathf.Clamp(CurrentRect.scale.x - _wheelAmount.Value * 0.01f, 0.05f, 5f);
+                    SetCurrentScale(scale);
+                }
+
+                if (_pressState[(int) KeyCode.Plus] || _pressState[(int) KeyCode.KeypadPlus])
+                {
+                    EditorZoomAmount *= 1.25f;
+                }
+                if (_pressState[(int) KeyCode.Minus] || _pressState[(int) KeyCode.KeypadMinus])
+                {
+                    EditorZoomAmount *= 0.75f;
+                }
+            }
+
+            if (_pressState[(int) KeyCode.None])
+            {
+                _pressCtrl = false;
+            }
+
+            // reset
+            _wheelAmount = null;
+            for (int i = 0; i < _pressState.Length; ++i)
+            {
+                //if (pressState[i]) Debug.Log("  " + (KeyCode) i);
+                _pressState[i] = false;
+            }
+        }
+
+        /// <summary>
+        /// GUI描画イベント
+        /// </summary>
+        protected override void OnGUI()
+        {
+            GUI.enabled = !IsPreviewMode;
+
+            DrawBgTexture();
+            DrawTargetRect();
+            DrawUnitImage();
+            DrawOverlayFrame();
+            DrawOutlineFrame();
+            DrawOneThirdLine();
+            DrawCenterGuide();
+            DrawMenu();
+            DrawTextureMenu();
+            DrawDebug();
+
+            GUI.enabled = true;
+
+            base.OnGUI();
+        }
+
+        /// <summary>
+        /// GUI入力イベント
+        /// </summary>
+        protected override void OnGuiEvent(Event e)
+        {
+            if (e != null)
+            {
+                if (e.type == EventType.scrollWheel)
+                {
+                    _wheelAmount = e.delta.y;
+                }
+
+                if (e.type == EventType.keyDown)
+                {
+                    _pressState[(int) e.keyCode] = true;
+                    if (e.keyCode == KeyCode.LeftControl || e.keyCode == KeyCode.RightControl)
+                    {
+                        _pressCtrl = true;
+                    }
+                }
+            }
+
+            base.OnGuiEvent(e);
+        }
+        #endregion
 
         #region Base Drag
         void OnBaseDragStart(Vector2 mousePos, DragObject o)
         {
-            editorDragStartMouse = mousePos;
-            editorDragStartPos = new Vector2(EditorPosX, EditorPosY);
+            _editorDragStartMouse = mousePos;
+            _editorDragStartPos = new Vector2(EditorPosX, EditorPosY);
         }
 
         void OnBaseDrag(Vector2 mousePos, DragObject o)
         {
-            var move = mousePos - editorDragStartMouse;
-            EditorPosX = editorDragStartPos.x + move.x / EditorZoomAmount;
-            EditorPosY = editorDragStartPos.y + move.y / EditorZoomAmount;
+            var move = mousePos - _editorDragStartMouse;
+            EditorPosX = _editorDragStartPos.x + move.x / EditorZoomAmount;
+            EditorPosY = _editorDragStartPos.y + move.y / EditorZoomAmount;
             Repaint();
         }
 
         void OnBaseDragEnd(Vector2 mousePos, DragObject o)
         {
-            var move = mousePos - editorDragStartMouse;
-            EditorPosX = editorDragStartPos.x + move.x / EditorZoomAmount;
-            EditorPosY = editorDragStartPos.y + move.y / EditorZoomAmount;
+            var move = mousePos - _editorDragStartMouse;
+            EditorPosX = _editorDragStartPos.x + move.x / EditorZoomAmount;
+            EditorPosY = _editorDragStartPos.y + move.y / EditorZoomAmount;
             Repaint();
         }
         #endregion
@@ -253,124 +387,57 @@ namespace Griphone.Sagittarius
 
         #region UnitScale Drag
         // TODO
-        void OnLeftTopDragStart(Vector2 mousePos, DragObject o) { }
-        void OnLeftTopDrag(Vector2 mousePos, DragObject o) { }
-        void OnLeftTopDragEnd(Vector2 mousePos, DragObject o) { }
+        void OnLeftTopDragStart(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnLeftTopDrag(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnLeftTopDragEnd(Vector2 mousePos, DragObject o)
+        {
+        }
 
         // TODO
-        void OnRightTopDragStart(Vector2 mousePos, DragObject o) { }
-        void OnRightTopDrag(Vector2 mousePos, DragObject o) { }
-        void OnRightTopDragEnd(Vector2 mousePos, DragObject o) { }
+        void OnRightTopDragStart(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnRightTopDrag(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnRightTopDragEnd(Vector2 mousePos, DragObject o)
+        {
+        }
 
         // TODO
-        void OnRightBottomDragStart(Vector2 mousePos, DragObject o) { }
-        void OnRightBottomDrag(Vector2 mousePos, DragObject o) { }
-        void OnRightBottomDragEnd(Vector2 mousePos, DragObject o) { }
+        void OnRightBottomDragStart(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnRightBottomDrag(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnRightBottomDragEnd(Vector2 mousePos, DragObject o)
+        {
+        }
 
         // TODO
-        void OnLeftBottomDragStart(Vector2 mousePos, DragObject o) { }
-        void OnLeftBottomDrag(Vector2 mousePos, DragObject o) { }
-        void OnLeftBottomDragEnd(Vector2 mousePos, DragObject o) { }
+        void OnLeftBottomDragStart(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnLeftBottomDrag(Vector2 mousePos, DragObject o)
+        {
+        }
+
+        void OnLeftBottomDragEnd(Vector2 mousePos, DragObject o)
+        {
+        }
         #endregion
-
-        // GUI描画イベント.
-        protected override void OnGUI()
-        {
-            GUI.enabled = !IsPreviewMode;
-            
-            DrawBgTexture();
-            DrawTargetRect();
-            DrawUnitImage();
-            DrawOverlayFrame();
-            DrawOutlineFrame();
-            DrawOneThirdLine();
-            DrawCenterGuide();
-            DrawMenu();
-            DrawTextureMenu();
-            DrawDebug();
-
-            GUI.enabled = true;
-
-            base.OnGUI();
-        }
-
-        // GUI入力イベント.
-        protected override void OnGuiEvent(Event e)
-        {
-            if (e != null)
-            {
-                if (e.type == EventType.scrollWheel)
-                {
-                    wheelAmount = e.delta.y;
-                }
-
-                if (e.type == EventType.keyDown)
-                {
-                    pressState[(int) e.keyCode] = true;
-                    if (e.keyCode == KeyCode.LeftControl || e.keyCode == KeyCode.RightControl)
-                    {
-                        pressCtrl = true;
-                    }
-                }
-            }
-
-            base.OnGuiEvent(e);
-        }
-
-        private void SetCurrentScale(float scale)
-        {
-            // ユニットのテクスチャスケールの更新
-            var prevScale = CurrentRect.scale.x;
-            CurrentRect.scale.x = scale;
-            CurrentRect.scale.y = scale;
-
-            // ずれた位置を修正する
-            var prevW = CurrentRect.rect.width * prevScale;
-            var prevH = CurrentRect.rect.height * prevScale;
-            var afterW = CurrentRect.rect.width * scale;
-            var afterH = CurrentRect.rect.height * scale;
-            var diffW = afterW - prevW;
-            var diffH = afterH - prevH;
-
-            CurrentRect.rect.x -= diffW / 2f;
-            CurrentRect.rect.y -= diffH / 2f;
-        }
-
-        // 更新.
-        private void Update()
-        {
-            if (pressCtrl)
-            {
-                if (wheelAmount.HasValue)
-                {
-                    // ユニットのテクスチャスケールの更新
-                    var scale = Mathf.Clamp(CurrentRect.scale.x - wheelAmount.Value*0.01f, 0.05f, 5f);
-                    SetCurrentScale(scale);
-                }
-
-                if (pressState[(int) KeyCode.Plus] || pressState[(int) KeyCode.KeypadPlus])
-                {
-                    EditorZoomAmount *= 1.25f;
-                }
-                if (pressState[(int) KeyCode.Minus] || pressState[(int) KeyCode.KeypadMinus])
-                {
-                    EditorZoomAmount *= 0.75f;
-                }
-            }
-
-            if (pressState[(int)KeyCode.None])
-            {
-                pressCtrl = false;
-            }
-
-            // reset
-            wheelAmount = null;
-            for (int i = 0; i < pressState.Length; ++i)
-            {
-                //if (pressState[i]) Debug.Log("  " + (KeyCode) i);
-                pressState[i] = false;
-            }
-        }
 
         #region Menu
         private void DrawMenu()
@@ -381,10 +448,16 @@ namespace Griphone.Sagittarius
             if (GUILayout.Button("センターガイド ON/OFF", GUILayout.MaxWidth(150))) OnClickCenterGuide();
             if (GUILayout.Button("1/3ライン ON/OFF", GUILayout.MaxWidth(150))) OnClickOneThirdLine();
             if (GUILayout.Button("フレーム ON/OFF", GUILayout.MaxWidth(150))) OnClickFrame();
-            
 
-            if (GUILayout.Button("位置リセット", GUILayout.MaxWidth(150))) { EditorPosX = EditorPosY = 0f; }
-            if (GUILayout.Button("Zoomリセット", GUILayout.MaxWidth(150))) { EditorZoomAmount = 1f; }
+
+            if (GUILayout.Button("位置リセット", GUILayout.MaxWidth(150)))
+            {
+                EditorPosX = EditorPosY = 0f;
+            }
+            if (GUILayout.Button("Zoomリセット", GUILayout.MaxWidth(150)))
+            {
+                EditorZoomAmount = 1f;
+            }
             if (GUILayout.Button("Rectリセット", GUILayout.MaxWidth(150)))
             {
                 CurrentRect.scale = Vector2.one;
@@ -411,57 +484,56 @@ namespace Griphone.Sagittarius
         {
             EditorGUILayout.BeginHorizontal(GUI.skin.box);
             {
-                var texNames = setting.BgTextureList.ConvertAll(_ => _ == null ? " " : _.name);
+                var texNames = Setting.BgTextureList.ConvertAll(_ => _ == null ? " " : _.name);
                 CurrentRect.selectedBgTexIndex = EditorGUILayout.Popup(CurrentRect.selectedBgTexIndex, texNames.ToArray(), GUILayout.MaxWidth(200));
             }
             {
-                var texNames = setting.FrameTexList.ConvertAll(_ => _ == null ? " " : _.name);
+                var texNames = Setting.FrameTexList.ConvertAll(_ => _ == null ? " " : _.name);
                 CurrentRect.selectedFrameTexIndex = EditorGUILayout.Popup(CurrentRect.selectedFrameTexIndex, texNames.ToArray(), GUILayout.MaxWidth(200));
             }
             EditorGUILayout.EndHorizontal();
         }
 
-        [Conditional("DEBUG")]
-        private void DrawDebug()
-        {
-            // デバッグ用の数値を表示する
-            EditorGUILayout.LabelField("X: " + EditorPosX);
-            EditorGUILayout.LabelField("Y: " + EditorPosY);
-            EditorGUILayout.LabelField("Zoom: " + EditorZoomAmount);
-            EditorGUILayout.LabelField("Rect: " + CurrentRect.rect);
-            EditorGUILayout.LabelField("Scale: " + CurrentRect.scale);
-        }
-
-        // 左右反転ボタンを押した時の挙動.
+        /// <summary>
+        /// 左右反転ボタンを押した時の挙動.
+        /// </summary>
         private void OnClickFlip()
         {
             CurrentRect.IsFlip = !CurrentRect.IsFlip;
         }
 
-        // センターガイド切替ボタンを押した時の挙動.
+        /// <summary>
+        /// センターガイド切替ボタンを押した時の挙動.
+        /// </summary>
         private void OnClickCenterGuide()
         {
             EnableCenterGuide = !EnableCenterGuide;
         }
 
-        // 1/3ライン切替ボタンを押した時の挙動.
+        /// <summary>
+        /// 1/3ライン切替ボタンを押した時の挙動.
+        /// </summary>
         private void OnClickOneThirdLine()
         {
             EnableOneThirdLine = !EnableOneThirdLine;
         }
 
-        // 外枠の表示切替ボタンを押した時の挙動.
+        /// <summary>
+        /// 外枠の表示切替ボタンを押した時の挙動.
+        /// </summary>
         private void OnClickFrame()
         {
             EnableOutlineFrame = !EnableOutlineFrame;
         }
 
-        // 確定ボタンを押した時の挙動.
+        /// <summary>
+        /// 確定ボタンを押した時の挙動.
+        /// </summary>
         private void OnClickConfirm()
         {
             if (EditorUtility.DisplayDialog("確認", "編集データを保存します\nよろしいですか？", "OK", "Cancel"))
             {
-                var drawScene = setting.SceneList[SelectedSceneIndex];
+                var drawScene = Setting.SceneList[SelectedSceneIndex];
                 CurrentRect.ApplyUVRect(drawScene);
                 AssetDatabase.SaveAssets();
                 ShowNotification(new GUIContent("保存が完了しました"));
@@ -469,10 +541,14 @@ namespace Griphone.Sagittarius
         }
         #endregion
 
-        // 外枠の表示
+        #region Draw Method
+
+        /// <summary>
+        /// 外枠の表示
+        /// </summary>
         private void DrawOutlineFrame()
         {
-            var drawScene = setting.SceneList[SelectedSceneIndex];
+            var drawScene = Setting.SceneList[SelectedSceneIndex];
             if (!EnableOutlineFrame || drawScene == null) return;
 
             var x = EditorPosX * EditorZoomAmount;
@@ -487,27 +563,31 @@ namespace Griphone.Sagittarius
             GUI.DrawTexture(new Rect(x + w / 2f - drawScene.width / 2f * EditorZoomAmount, y + (h - drawScene.height * EditorZoomAmount) / 2f + drawScene.height * EditorZoomAmount, drawScene.width * EditorZoomAmount, (h - drawScene.height * EditorZoomAmount) / 2f), FrameTex);
         }
 
-        // 背景テクスチャの表示
+        /// <summary>
+        /// 背景テクスチャの表示
+        /// </summary>
         private void DrawBgTexture()
         {
-            if (setting.BgTextureList.Count > CurrentRect.selectedBgTexIndex)
+            if (Setting.BgTextureList.Count > CurrentRect.selectedBgTexIndex)
             {
-                var tex = setting.BgTextureList[CurrentRect.selectedBgTexIndex];
+                var tex = Setting.BgTextureList[CurrentRect.selectedBgTexIndex];
                 if (tex != null)
                 {
-                    var x = position.width/2f - (tex.width/2f - EditorPosX)*EditorZoomAmount;
-                    var y = position.height/2f - (tex.height/2f - EditorPosY)*EditorZoomAmount;
-                    var w = tex.width*EditorZoomAmount;
-                    var h = tex.height*EditorZoomAmount;
+                    var x = position.width / 2f - (tex.width / 2f - EditorPosX) * EditorZoomAmount;
+                    var y = position.height / 2f - (tex.height / 2f - EditorPosY) * EditorZoomAmount;
+                    var w = tex.width * EditorZoomAmount;
+                    var h = tex.height * EditorZoomAmount;
                     GUI.DrawTexture(new Rect(x, y, w, h), tex);
                 }
             }
         }
 
-        // 選択中シーンの領域サイズを描画
+        /// <summary>
+        /// 選択中シーンの領域サイズを描画
+        /// </summary>
         private void DrawTargetRect()
         {
-            var drawScene = setting.SceneList[SelectedSceneIndex];
+            var drawScene = Setting.SceneList[SelectedSceneIndex];
             if (drawScene != null)
             {
                 var x = position.width / 2f - (drawScene.width / 2f - EditorPosX) * EditorZoomAmount;
@@ -518,7 +598,9 @@ namespace Griphone.Sagittarius
             }
         }
 
-        // ユニットイラストを表示
+        /// <summary>
+        /// ユニットイラストを表示
+        /// </summary>
         private void DrawUnitImage()
         {
             var selectedElementIds = Current.sceneList[SelectedSceneIndex].GetSelectedElementIdList(SelectedRectIndex);
@@ -553,36 +635,40 @@ namespace Griphone.Sagittarius
             }
         }
 
-        // オーバーレイフレームの表示
+        /// <summary>
+        /// オーバーレイフレームの表示
+        /// </summary>
         private void DrawOverlayFrame()
         {
-            if (setting.FrameTexList.Count > CurrentRect.selectedFrameTexIndex)
+            if (Setting.FrameTexList.Count > CurrentRect.selectedFrameTexIndex)
             {
-                var tex = setting.FrameTexList[CurrentRect.selectedFrameTexIndex];
+                var tex = Setting.FrameTexList[CurrentRect.selectedFrameTexIndex];
                 if (tex != null)
                 {
-                    var x = position.width/2f - (tex.width/2f - EditorPosX)*EditorZoomAmount;
-                    var y = position.height/2f - (tex.height/2f - EditorPosY)*EditorZoomAmount;
-                    var w = tex.width*EditorZoomAmount;
-                    var h = tex.height*EditorZoomAmount;
+                    var x = position.width / 2f - (tex.width / 2f - EditorPosX) * EditorZoomAmount;
+                    var y = position.height / 2f - (tex.height / 2f - EditorPosY) * EditorZoomAmount;
+                    var w = tex.width * EditorZoomAmount;
+                    var h = tex.height * EditorZoomAmount;
                     GUI.DrawTexture(new Rect(x, y, w, h), tex);
                 }
             }
         }
 
-        // 1/3ラインの表示
+        /// <summary>
+        /// 1/3ラインの表示
+        /// </summary>
         private void DrawOneThirdLine()
         {
-            var drawScene = setting.SceneList[SelectedSceneIndex];
+            var drawScene = Setting.SceneList[SelectedSceneIndex];
             if (!EnableOneThirdLine || drawScene == null) return;
-            
+
             var lineColor = new Color(0f, 0f, 1f, 0.5f);
-            var centerX = position.width/2f - (drawScene.width/2f - EditorPosX)*EditorZoomAmount;
-            var centerY = position.height/2f - (drawScene.height/2f - EditorPosY)*EditorZoomAmount;
+            var centerX = position.width / 2f - (drawScene.width / 2f - EditorPosX) * EditorZoomAmount;
+            var centerY = position.height / 2f - (drawScene.height / 2f - EditorPosY) * EditorZoomAmount;
 
             // 縦1/3
-            var p1 = new Vector2(centerX + drawScene.width*0.3333f*EditorZoomAmount, 0);
-            var p2 = new Vector2(centerX + drawScene.width*0.3333f*EditorZoomAmount, position.height);
+            var p1 = new Vector2(centerX + drawScene.width * 0.3333f * EditorZoomAmount, 0);
+            var p2 = new Vector2(centerX + drawScene.width * 0.3333f * EditorZoomAmount, position.height);
             Drawing.DrawLine(p1, p2, lineColor, 1, false);
             // 縦2/3
             p1 = new Vector2(centerX + drawScene.width * 0.6667f * EditorZoomAmount, 0);
@@ -598,10 +684,12 @@ namespace Griphone.Sagittarius
             Drawing.DrawLine(p1, p2, lineColor, 1, false);
         }
 
-        // 1/2ラインの表示
+        /// <summary>
+        /// 1/2ラインの表示
+        /// </summary>
         private void DrawCenterGuide()
         {
-            var drawScene = setting.SceneList[SelectedSceneIndex];
+            var drawScene = Setting.SceneList[SelectedSceneIndex];
             if (!EnableCenterGuide || drawScene == null) return;
 
             var lineColor = new Color(1f, 0f, 0f, 0.5f);
@@ -617,5 +705,41 @@ namespace Griphone.Sagittarius
             p2 = new Vector2(position.width, centerY + drawScene.height * 0.5f * EditorZoomAmount);
             Drawing.DrawLine(p1, p2, lineColor, 1, false);
         }
+
+        /// <summary>
+        /// デバッグ変数の描画
+        /// </summary>
+        [Conditional("DEBUG")]
+        private void DrawDebug()
+        {
+            // デバッグ用の数値を表示する
+            EditorGUILayout.LabelField("X: " + EditorPosX);
+            EditorGUILayout.LabelField("Y: " + EditorPosY);
+            EditorGUILayout.LabelField("Zoom: " + EditorZoomAmount);
+            EditorGUILayout.LabelField("Rect: " + CurrentRect.rect);
+            EditorGUILayout.LabelField("Scale: " + CurrentRect.scale);
+        }
+        #endregion
+
+        private void SetCurrentScale(float scale)
+        {
+            // ユニットのテクスチャスケールの更新
+            var prevScale = CurrentRect.scale.x;
+            CurrentRect.scale.x = scale;
+            CurrentRect.scale.y = scale;
+
+            // ずれた位置を修正する
+            var prevW = CurrentRect.rect.width * prevScale;
+            var prevH = CurrentRect.rect.height * prevScale;
+            var afterW = CurrentRect.rect.width * scale;
+            var afterH = CurrentRect.rect.height * scale;
+            var diffW = afterW - prevW;
+            var diffH = afterH - prevH;
+
+            CurrentRect.rect.x -= diffW / 2f;
+            CurrentRect.rect.y -= diffH / 2f;
+        }
+
+        #endregion
     }
 }

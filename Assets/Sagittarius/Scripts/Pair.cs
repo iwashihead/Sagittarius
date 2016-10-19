@@ -10,18 +10,18 @@ namespace Griphone.Sagittarius
     [Serializable]
     public class Pair<TKey, TValue>
     {
-        public TKey key;
-        public TValue value;
+        public TKey Key;
+        public TValue Value;
 
         public Pair(TKey key, TValue value)
         {
-            this.key = key;
-            this.value = value;
+            Key = key;
+            Value = value;
         }
 
         public override string ToString()
         {
-            return string.Format("key:{0}  value:{1}", key, value);
+            return string.Format("key:{0}  value:{1}", Key, Value);
         }
     }
 }

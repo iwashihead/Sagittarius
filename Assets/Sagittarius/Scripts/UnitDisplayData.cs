@@ -9,7 +9,7 @@ namespace Griphone.Sagittarius
 {
     /// <summary>
     /// ユニット表示領域に関するデータ.
-    /// サジタリウスの出力データになります.
+    /// サジタリウスの出力データであり、アプリ実行時はそのままマスターデータとして使用されます.
     /// </summary>
     [Serializable]
     [CreateAssetMenu(fileName = "UnitDisplayData", menuName = "Sagittarius/UnitDisplayData", order = 0)]

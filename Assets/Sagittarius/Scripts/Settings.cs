@@ -16,7 +16,7 @@ namespace Griphone.Sagittarius
     [CreateAssetMenu(fileName = "Sagittarius", menuName = "Sagittarius/Settings", order = 0)]
     public class Settings : ScriptableObject
     {
-        public const string SETTING_DATA_PATH = "Assets/Sagittarius/Data/Settings.asset";
+        public const string SETTING_DATA_PATH = "Assets/Sagittarius/Resources/ScriptableObject/SagittariusSettings.asset";
         private static Settings instance;
         public static Settings Instance
         {

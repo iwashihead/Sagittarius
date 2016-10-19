@@ -9,7 +9,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 755db865c1ee89a4da1cce8d4ab8c6a6, type: 3}
-  m_Name: Settings
+  m_Name: SagittariusSettings
   m_EditorClassIdentifier: 
   IdRuleRegex: \d{4}
   SizeList:

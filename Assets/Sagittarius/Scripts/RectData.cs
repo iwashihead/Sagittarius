@@ -56,44 +56,45 @@ namespace Griphone.Sagittarius
             scale = Vector2.one;
         }
 
+        /// <summary>
+        /// RawImage用にUVを適用します.
+        /// </summary>
         public void ApplyUVRect(DrawScene scene)
         {
-            var p1 = new Rect(0, 0, rect.width, rect.height);
-            var p2 = new Rect(-(rect.x * scale.x), -(rect.y * scale.y), rect.width * scale.x, rect.height * scale.y);
-            var p3 = new Rect(0, 0, scene.width, scene.height);
-            var p4 = new Vector2(p2.x + p2.width, p2.y + p2.height);
-            var p5 = new Vector2((p3.x + p3.width) * scale.x, (p3.y + p3.height) * scale.y);
+            // Rawイメージ用のUVを計算する
+            // サジタリウスはEditor座標系（左上）インターフェース（中心）の２つの座標系を変換し合っている.
+            // 加えて、RawImageのuvRectは左下座標系なのでやや複雑な計算となっています.
+            var r1 = new Rect(-(rect.x * scale.x), -(rect.y * scale.y), rect.width * scale.x, rect.height * scale.y);
+            var r2 = new Rect(0, 0, scene.width, scene.height);
+            var baseX = rect.width * 0.5f * (1 - scale.x);
+            var baseY = rect.height * 0.5f * (1 - scale.y);
+            var posX = (rect.x - baseX) / r1.width;
+            var posY = (rect.y - baseY) / r1.height;
+            var scaleX = -(r2.width * 0.5f - r1.width * 0.5f) / r1.width;
+            var scaleY = -(r2.height * 0.5f - r1.height * 0.5f) / r1.height;
+            
+            UVRect.x = scaleX - posX;
+            UVRect.y = scaleY + posY;
+            UVRect.width = r2.width / (rect.width * scale.x);
+            UVRect.height = r2.height / (rect.height * scale.y);
 
-            //UVRect.x = (p4.x - p5.x) * 0.5f * scale.x / p2.width;
-            //UVRect.y = (p4.y - p5.y) * 0.5f * scale.y / p2.height;
-
-            // スケールだけならこのコードでOK！！
-            UVRect.x = -(p3.width * 0.5f - p2.width * 0.5f) / p2.width;
-            UVRect.y = -(p3.height * 0.5f - p2.height * 0.5f) / p2.height;
-            UVRect.width = p3.width / (rect.width * scale.x);
-            UVRect.height = p3.height / (rect.height * scale.y);
-
-            //Debug.Log(string.Format("(p4.x - p5.x) * 0.5f / p2.width = ({0} - {1}) * 0.5f / {2}", p4.x, p5.x, p2.width));
-            //Debug.Log(string.Format("(p4.y - p5.y) * 0.5f / p2.height = ({0} - {1}) * 0.5f / {2}", p4.y, p5.y, p2.height));
-
-            string s = "";
-            s += string.Format("(p4.x - p5.x) * 0.5f / p2.width = ({0} - {1}) * 0.5f / {2}", p4.x, p5.x, p2.width) + "\n";
-            s += string.Format("(p4.y - p5.y) * 0.5f / p2.height = ({0} - {1}) * 0.5f / {2}", p4.y, p5.y, p2.height) + "\n";
-            s += Log("scaleX", rect.width * scale.x);
-            s += Log("scaleY", rect.height * scale.y);
-            s += Log("rect", rect);
-            s += Log("scale", scale);
-            s += Log("scene", new Vector2(scene.width, scene.height));
-            s += Log("p1", p1);
-            s += Log("p2", p2);
-            s += Log("p3", p3);
-            s += Log("p4", p4);
-            s += Log("p5", p5);
-            s += Log("uv", UVRect);
-            Debug.LogError(s);
+            // For Debug.
+            OutputLog(scene);
         }
 
-        string Log(string title, object obj)
+        void OutputLog(DrawScene scene)
+        {
+            string logString = "";
+            logString += GetLogString("scaleX", rect.width * scale.x);
+            logString += GetLogString("scaleY", rect.height * scale.y);
+            logString += GetLogString("rect", rect);
+            logString += GetLogString("scale", scale);
+            logString += GetLogString("scene", new Vector2(scene.width, scene.height));
+            logString += GetLogString("uv", UVRect);
+            Debug.LogWarning(logString);
+        }
+
+        string GetLogString(string title, object obj)
         {
             var s = string.Format("{0} : {1}", title, obj);
             //Debug.Log(s);
